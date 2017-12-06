@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseORMGenerator", "DatabaseORMGenerator\DatabaseORMGenerator.csproj", "{9742ACF7-478E-42A4-8271-72E7FEE726CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseORMGenerator.Tests", "DatabaseORMGenerator.Tests\DatabaseORMGenerator.Tests.csproj", "{88C26E40-5CCE-4BC1-8D34-7F57F56368B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseORMGeneratorCLI", "DatabaseORMGeneratorCLI\DatabaseORMGeneratorCLI.csproj", "{7497B411-0176-41A7-849E-D88726E69FDF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9742ACF7-478E-42A4-8271-72E7FEE726CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9742ACF7-478E-42A4-8271-72E7FEE726CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9742ACF7-478E-42A4-8271-72E7FEE726CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9742ACF7-478E-42A4-8271-72E7FEE726CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88C26E40-5CCE-4BC1-8D34-7F57F56368B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88C26E40-5CCE-4BC1-8D34-7F57F56368B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88C26E40-5CCE-4BC1-8D34-7F57F56368B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88C26E40-5CCE-4BC1-8D34-7F57F56368B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7497B411-0176-41A7-849E-D88726E69FDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7497B411-0176-41A7-849E-D88726E69FDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7497B411-0176-41A7-849E-D88726E69FDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7497B411-0176-41A7-849E-D88726E69FDF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
