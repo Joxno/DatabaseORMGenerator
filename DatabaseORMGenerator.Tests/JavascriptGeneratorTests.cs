@@ -6,14 +6,15 @@ using System.Collections.Generic;
 namespace DatabaseORMGenerator.Tests
 {
     [TestClass]
-    public class CppGeneratorTests
+    public class JavascriptGeneratorTests
     {
         [TestMethod]
-        public void GenerateCppSource()
+        public void GenerateJSSource()
         {
             var t_Schema = new Schema
             {
-                 Tables = new List<Table>
+                Name = "TestSchema",
+                Tables = new List<Table>
                  {
                      new Table
                      {
@@ -26,10 +27,10 @@ namespace DatabaseORMGenerator.Tests
                  }
             };
 
-            var t_CppGen = new CppGenerator();
-            var t_Files = t_CppGen.GenerateSource(t_Schema);
+            var t_JSGen = new JSGenerator();
+            var t_Files = t_JSGen.GenerateSource(t_Schema);
 
-            Assert.IsTrue(t_Files.Count == 1 && t_Files[0].Name == "TestTable.h" && t_Files[0].Content.Length > 0);
+            Assert.IsTrue(t_Files.Count == 1 && t_Files[0].Name == "TestSchema.js" && t_Files[0].Content.Length > 0);
         }
     }
 }

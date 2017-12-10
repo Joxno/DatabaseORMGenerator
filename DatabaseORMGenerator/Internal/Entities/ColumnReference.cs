@@ -1,5 +1,4 @@
-﻿using DatabaseORMGenerator.Internal;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace DatabaseORMGenerator.Internal
 {
-    interface IORMGenerator
+    public class ColumnReference
     {
-        List<ORMSourceFile> GenerateSource(Schema Schema);
+        public Column Column { get; set; }
+        public Table Table { get; set; }
     }
 }

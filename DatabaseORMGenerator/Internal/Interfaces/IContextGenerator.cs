@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace DatabaseORMGenerator.Internal
 {
-    public class Schema
+    public interface IContextGenerator
     {
-        public string Name { get; set; } = "";
-        public List<Table> Tables { get; set; } = new List<Table>();
+        ORMSourceFile Generate(Schema Schema);
     }
 }

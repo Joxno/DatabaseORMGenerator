@@ -45,7 +45,7 @@ namespace DatabaseORMGenerator.Tests
         }
 
         [TestMethod]
-        public void GenerateTableFile()
+        public void GenerateSqliteSource()
         {
             var t_Schema = _GenerateTestSchema();
 
@@ -57,7 +57,7 @@ namespace DatabaseORMGenerator.Tests
         }
 
         [TestMethod]
-        public void GenerateDatabaseFromFile()
+        public void GenerateSqliteDatabaseFromFile()
         {
             var t_Schema = _GenerateTestSchema();
 

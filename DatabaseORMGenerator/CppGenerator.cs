@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DatabaseORMGenerator
 {
-    public class CppGenerator : IORMGenerator
+    public class CppGenerator : IDTOGenerator
     {
         // Privates
 
@@ -16,7 +16,7 @@ namespace DatabaseORMGenerator
             var t_File = _GenerateHeader(T.Name);
 
             foreach (var t_Col in T.Columns.OrderBy((P) => P.Key))
-                t_File += "\t" + _GenerateTableColumn(t_Col.Value) + ";\n";
+                t_File += "\t" + "\t" + _GenerateTableColumn(t_Col.Value) + ";\n";
 
             t_File += _GenerateFooter();
 
@@ -31,6 +31,7 @@ namespace DatabaseORMGenerator
         private string _GenerateHeader(string Name)
         {
             return 
+                "/* AUTOMATICALLY GENERATED CODE */" + '\n' + 
                 "#include <string>" + '\n' +
                 "class " + Name + '\n' +
                 "{" + '\n' +

@@ -55,14 +55,18 @@ namespace DatabaseORMGenerator.Internal
 
         private COLUMN_DATA_TYPE _ParseType(string TypeText)
         {
-            if (TypeText.ToLower().StartsWith("varchar"))
-                TypeText = "varchar";
+            if (TypeText.ToLower().StartsWith("varchar")) TypeText = "varchar";
+            if (TypeText.ToLower().StartsWith("nvarchar")) TypeText = "nvarchar";
 
-            switch(TypeText.ToLower())
+            switch (TypeText.ToLower())
             {
+                case "bit":
+                case "bigint":
+                case "bool":
                 case "int":
                 case "integer":
                     return COLUMN_DATA_TYPE.INTEGER;
+                case "nvarchar":
                 case "varchar":
                 case "text":
                     return COLUMN_DATA_TYPE.STRING;

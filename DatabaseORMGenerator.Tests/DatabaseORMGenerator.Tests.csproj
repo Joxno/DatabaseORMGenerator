@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="CppGeneratorTests.cs" />
     <Compile Include="CSharpGeneratorTests.cs" />
+    <Compile Include="JavascriptGeneratorTests.cs" />
     <Compile Include="JsonSchemaRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteGeneratorTests.cs" />

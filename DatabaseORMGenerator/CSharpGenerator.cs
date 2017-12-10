@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace DatabaseORMGenerator
 {
-    public class CSharpGenerator : IORMGenerator
+    public class CSharpGenerator : IDTOGenerator
     {
         // Privates
 
         private string _GenerateTable(Table Table)
         {
             var t_Includes = "using System;\n";
-            var t_Content = t_Includes + $"public class {Table.Name}\n";
+            var t_Content = "/* AUTOMATICALLY GENERATED CODE */" + '\n' + t_Includes + $"public class {Table.Name}\n";
             t_Content += "{\n";
             t_Content += string.Join("\n", Table.Columns.OrderBy(P => P.Key).Select(P => _GenerateColumn(P.Value)).ToArray());
             t_Content += "\n}";
@@ -23,7 +23,7 @@ namespace DatabaseORMGenerator
 
         private string _GenerateColumn(Column Column)
         {
-            return "public " + _GenerateType(Column.Type) + " " + Column.Name + " { get; set; }";
+            return '\t' + "public " + _GenerateType(Column.Type) + " " + Column.Name + " { get; set; }";
         }
 
         private string _GenerateType(COLUMN_DATA_TYPE Type)

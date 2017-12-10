@@ -14,9 +14,18 @@ namespace DatabaseORMGenerator.Internal
         NONE = 3
     }
 
+    public enum COLUMN_KEY_TYPE
+    {
+        NONE = 0,
+        PRIMARY = 1
+    }
+
     public class Column
     {
         public string Name { get; set; } = "";
         public COLUMN_DATA_TYPE Type { get; set; } = COLUMN_DATA_TYPE.NONE;
+        public COLUMN_KEY_TYPE Key { get; set; } = COLUMN_KEY_TYPE.NONE;
+
+        public ColumnReference Reference { get; set; } = null;
     }
 }

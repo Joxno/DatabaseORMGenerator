@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DatabaseORMGenerator
 {
-    public class SqliteGenerator : IORMGenerator
+    public class SqliteGenerator : IDTOGenerator
     {
         // Private
 

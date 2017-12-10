@@ -63,12 +63,15 @@
   <ItemGroup>
     <Compile Include="CppGenerator.cs" />
     <Compile Include="CSharpGenerator.cs" />
+    <Compile Include="Internal\Entities\ColumnReference.cs" />
     <Compile Include="Internal\Entities\Column.cs" />
-    <Compile Include="Internal\Interfaces\IORMGenerator.cs" />
+    <Compile Include="Internal\Interfaces\IContextGenerator.cs" />
+    <Compile Include="Internal\Interfaces\IDTOGenerator.cs" />
     <Compile Include="Internal\Interfaces\ISchemaRepository.cs" />
     <Compile Include="Internal\Entities\ORMSourceFile.cs" />
     <Compile Include="Internal\JsonSchemaRepository.cs" />
     <Compile Include="Internal\SqliteSchemaRepository.cs" />
+    <Compile Include="JSGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\Entities\Schema.cs" />
     <Compile Include="Internal\Entities\Table.cs" />
