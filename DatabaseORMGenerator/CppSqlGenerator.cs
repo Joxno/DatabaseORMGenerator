@@ -16,7 +16,7 @@ namespace DatabaseORMGenerator
                 "/* COMPUTER GENERATED CODE */" + '\n' +
                 "#pragma once" + '\n' +
                 "#include \"ISqlContract.h\"" + '\n' +
-                $"#include \"{Table.Name}.h\"" +
+                $"#include \"{Table.Name}.h\"" + '\n' +
                 "#include <string>" + '\n' +
                 "#include <memory>" + '\n' +
                 "#include <vector>" + '\n' +
@@ -32,14 +32,13 @@ namespace DatabaseORMGenerator
                 _GenerateCreateFunction(Table) + '\n' +
                 _GenerateReadFunction(Table) + '\n' +
                 "" + '\n' +
-                "}" + '\n' +
-                "";
+                "};";
         }
 
         // CRUD - Operations
         private string _GenerateCreateFunction(Table Table)
         {
-            var t_DataString = "string t_Values = \"\";" + '\n';
+            var t_DataString = "std::string t_Values = \"\";" + '\n';
 
             foreach(var t_C in Table.Columns)
             {
@@ -49,7 +48,7 @@ namespace DatabaseORMGenerator
                     t_DataString += $"t_Values += \"'\" + std::to_string(DTO.{t_C.Value.Name}) + \"',\";" + '\n';
             }
 
-            t_DataString += "t_Values = t_Values.substr(0, t_Values.length - 1);" + '\n';
+            t_DataString += "t_Values = t_Values.substr(0, t_Values.length() - 1);" + '\n';
 
             var t_ColumnStr = String.Join(",", Table.Columns.Select(C => C.Value.Name).ToArray<string>());
             var t_Text = $"void Create({Table.Name} DTO)" + '\n' +
@@ -115,39 +114,39 @@ namespace DatabaseORMGenerator
 
         private string _GenerateSqlInterface()
         {
-            return 
-                @"
-                    #pragma once
-                    #include <string>
+            return
+@"
+#pragma once
+#include <string>
 
-                    class ISqlRow
-                    {
-                    public:
-	                    int GetInt(int Id);
-	                    std::string GetText(int Id);
-	                    float GetFloat(int Id);
-	                    bool GetBool(int Id);
+class ISqlRow
+{
+public:
+	virtual int GetInt(int Id) = 0;
+	virtual std::string GetText(int Id) = 0;
+	virtual float GetFloat(int Id) = 0;
+	virtual bool GetBool(int Id) = 0;
 
-	                    ~ISqlRow() = delete;
-                    };
+	virtual ~ISqlRow() {};
+};
 
-                    class ISqlStatement
-                    {
-                    public:
-	                    ISqlRow *GetNextRow();
-	                    ~ISqlStatement() = delete;
-                    };
+class ISqlStatement
+{
+public:
+	virtual ISqlRow *GetNextRow() = 0;
+	virtual ~ISqlStatement() {};
+};
 
-                    class ISqlContract
-                    {
-                    public:
+class ISqlContract
+{
+public:
 
-	                    virtual void ExecuteStatement(std::string Statement);
-	                    virtual ISqlStatement *ExecuteQuery(std::string Query);
+	virtual void ExecuteStatement(std::string Statement) = 0;
+	virtual ISqlStatement *ExecuteQuery(std::string Query) = 0;
 
-	                    ~ISqlContract() = delete;
-                    };
-                ";
+	virtual ~ISqlContract() {};
+};
+";
         }
 
         // Interface
