@@ -31,7 +31,7 @@ namespace DatabaseORMGenerator
         private string _GenerateHeader(string Name)
         {
             return 
-                "/* AUTOMATICALLY GENERATED CODE */" + '\n' + 
+                "/* COMPUTER GENERATED CODE */" + '\n' + 
                 "#include <string>" + '\n' +
                 "class " + Name + '\n' +
                 "{" + '\n' +
@@ -50,7 +50,7 @@ namespace DatabaseORMGenerator
 
             if (Type == COLUMN_DATA_TYPE.INTEGER) t_TypeText = "int";
             if (Type == COLUMN_DATA_TYPE.FLOATING) t_TypeText = "float";
-            if (Type == COLUMN_DATA_TYPE.STRING) t_TypeText = "string";
+            if (Type == COLUMN_DATA_TYPE.STRING) t_TypeText = "std::string";
 
             return t_TypeText;
         }

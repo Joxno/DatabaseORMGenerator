@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CppGenerator.cs" />
+    <Compile Include="CppSqlGenerator.cs" />
     <Compile Include="CSharpGenerator.cs" />
     <Compile Include="Internal\Entities\ColumnReference.cs" />
     <Compile Include="Internal\Entities\Column.cs" />
