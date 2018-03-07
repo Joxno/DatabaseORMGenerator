@@ -34,7 +34,7 @@ namespace DatabaseORMGenerator.Internal
             var t_Index = 0;
             foreach(var t_Column in Columns)
             {
-                t_Table.Columns.Add(t_Index++, _ParseColumn(t_Column.Name.ToString(), t_Column.Type.ToString(), t_Column.Property));
+                t_Table.Columns.Add(t_Index++, _ParseColumn(t_Column.Name.ToString(), t_Column.Type.ToString(), t_Column.Property?.ToString()));
             }
 
             return t_Table;
