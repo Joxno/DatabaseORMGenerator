@@ -21,6 +21,7 @@ namespace DatabaseORMGenerator
                 "#include <string>" + '\n' +
                 "#include <memory>" + '\n' +
                 "#include <vector>" + '\n' +
+                "#include <functional>" + '\n' +
                 "class " + Table.Name + "DTO" + "Repository" + '\n' +
                 "{" + '\n' +
                 "private:" + '\n' +
@@ -104,6 +105,28 @@ namespace DatabaseORMGenerator
         [DTO_NAME] DTO {};
         [DTO_VAR_ASSIGNMENT]
         t_DTOs.push_back(DTO);
+    }
+
+    return t_DTOs;
+}"
+.Replace("[DTO_NAME]", Table.Name + "DTO")
+.Replace("[SELECT_QUERY]", t_SelectQuery)
+.Replace("[DTO_VAR_ASSIGNMENT]", t_DTOAssignment);
+
+            t_FunctionText += '\n' +
+@"std::vector<[DTO_NAME]> Read(std::function<bool([DTO_NAME])> Filter)
+{
+	std::vector<[DTO_NAME]> t_DTOs{};
+	auto t_Statement = m_DB->ExecuteQuery([SELECT_QUERY]);
+
+    ISqlRow* t_Row = nullptr;
+    while ((t_Row = t_Statement->GetNextRow()) != nullptr)
+    {
+        [DTO_NAME] DTO {};
+        [DTO_VAR_ASSIGNMENT]
+
+        if(Filter(DTO))
+            t_DTOs.push_back(DTO);
     }
 
     return t_DTOs;
