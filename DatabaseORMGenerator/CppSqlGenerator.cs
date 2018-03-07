@@ -188,6 +188,64 @@ public:
 ";
         }
 
+        private string _GenerateStorageContext(Schema Schema)
+        {
+            var t_TemplateGetFunction =
+@"
+[REPO_NAME] *Get[FUNC_NAME]()
+{
+	if ([VAR_NAME] == nullptr)
+		[VAR_NAME] = std::make_unique<[REPO_NAME]>(m_Contract);
+	return [VAR_NAME].get();
+}
+";
+
+            var t_ContextInclude = "";
+            var t_ContextPrivateVariables = "";
+            var t_ContextGetters = "";
+
+            foreach(var t_Table in Schema.Tables)
+            {
+                var t_RepoName = t_Table.Name + "DTO" + "Repository";
+                t_ContextInclude += $"#include \"{t_RepoName}.h\"" + '\n';
+
+                t_ContextPrivateVariables += $"std::unique_ptr<{t_RepoName}> m_{t_RepoName} = nullptr;" + '\n';
+
+                t_ContextGetters += t_TemplateGetFunction
+                    .Replace("[REPO_NAME]", t_RepoName)
+                    .Replace("[VAR_NAME]", "m_" + t_RepoName)
+                    .Replace("[FUNC_NAME]", t_Table.Name) + '\n';
+
+            }
+
+
+            var t_ContextText = 
+            "/* COMPUTER GENERATED CODE*/" + '\n' +
+            "#pragma once" + '\n' +
+            "#include \"ISqlContract.h\"" + '\n' +
+            "#include <memory>" + '\n' +
+            t_ContextInclude + '\n' +
+            "class StorageContext" + '\n' +
+            "{" + '\n' +
+            "private:" + '\n' +
+            "std::shared_ptr<ISqlContract> m_Contract = nullptr;" + '\n' +
+            t_ContextPrivateVariables + '\n' +
+            "public:" + '\n' +
+            "StorageContext(std::unique_ptr<ISqlContract> DB)" + '\n' +
+            "{" + '\n' +
+            "    m_Contract = std::shared_ptr<ISqlContract>(std::move(DB));" + '\n' +
+            "}" + '\n' +
+            "StorageContext(std::shared_ptr<ISqlContract> DB)" + '\n' +
+            "{" + '\n' +
+            "    m_Contract = DB;" + '\n' +
+            "}" + '\n' +
+            t_ContextGetters + '\n' +
+            "};";
+
+
+            return t_ContextText;
+        }
+
         // Interface
         public List<ORMSourceFile> GenerateSource(Schema Schema)
         {
@@ -201,6 +259,7 @@ public:
             }
 
             t_Files.Add( new ORMSourceFile { Name = "ISqlContract.h", Content = _GenerateSqlInterface() });
+            t_Files.Add(new ORMSourceFile { Name = "StorageContext.h", Content = _GenerateStorageContext(Schema) });
 
             return t_Files;
         }
