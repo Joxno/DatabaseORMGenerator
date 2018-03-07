@@ -34,13 +34,13 @@ namespace DatabaseORMGenerator.Internal
             var t_Index = 0;
             foreach(var t_Column in Columns)
             {
-                t_Table.Columns.Add(t_Index++, _ParseColumn(t_Column.Name.ToString(), t_Column.Type.ToString()));
+                t_Table.Columns.Add(t_Index++, _ParseColumn(t_Column.Name.ToString(), t_Column.Type.ToString(), t_Column.Property));
             }
 
             return t_Table;
         }
 
-        private Column _ParseColumn(string Name, string Type)
+        private Column _ParseColumn(string Name, string Type, string Property = null)
         {
             var t_Col = new Column { Name = Name };
 
@@ -57,6 +57,19 @@ namespace DatabaseORMGenerator.Internal
                     break;
                 default:
                     t_Col.Type = COLUMN_DATA_TYPE.NONE;
+                    break;
+            }
+
+            switch(Property)
+            {
+                case "unique":
+                    t_Col.Property = COLUMN_PROPERTY_TYPE.UNIQUE;
+                    break;
+                case "identity":
+                    t_Col.Property = COLUMN_PROPERTY_TYPE.IDENTITY;
+                    break;
+                default:
+                    t_Col.Property = COLUMN_PROPERTY_TYPE.NONE;
                     break;
             }
 

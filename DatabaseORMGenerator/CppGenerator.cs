@@ -33,7 +33,7 @@ namespace DatabaseORMGenerator
             return 
                 "/* COMPUTER GENERATED CODE */" + '\n' + 
                 "#include <string>" + '\n' +
-                "class " + Name + '\n' +
+                $"class {Name}DTO" + '\n' +
                 "{" + '\n' +
                 "\tpublic:" + '\n' +
                 "";
@@ -62,7 +62,7 @@ namespace DatabaseORMGenerator
 
             foreach(var t_Table in Schema.Tables)
             {
-                var t_File = new ORMSourceFile { Name = t_Table.Name + ".h", Content = _GenerateTableSourceFile(t_Table) };
+                var t_File = new ORMSourceFile { Name = t_Table.Name + "DTO.h", Content = _GenerateTableSourceFile(t_Table) };
                 t_Files.Add(t_File);
             }
 

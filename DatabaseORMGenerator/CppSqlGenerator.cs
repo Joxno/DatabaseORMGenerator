@@ -16,11 +16,11 @@ namespace DatabaseORMGenerator
                 "/* COMPUTER GENERATED CODE */" + '\n' +
                 "#pragma once" + '\n' +
                 "#include \"ISqlContract.h\"" + '\n' +
-                $"#include \"{Table.Name}.h\"" + '\n' +
+                $"#include \"{Table.Name}DTO.h\"" + '\n' +
                 "#include <string>" + '\n' +
                 "#include <memory>" + '\n' +
                 "#include <vector>" + '\n' +
-                "class " + Table.Name + "Repository" + '\n' +
+                "class " + Table.Name + "DTORepository" + '\n' +
                 "{" + '\n' +
                 "private:" + '\n' +
                 "std::shared_ptr<ISqlContract> m_DB = nullptr;" + '\n' +
