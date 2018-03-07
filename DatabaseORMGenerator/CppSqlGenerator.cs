@@ -120,18 +120,19 @@ namespace DatabaseORMGenerator
             if (Table.Columns.Count <= 1) return "/* TABLE HAS ONLY A SINGLE UNIQUE COLUMN. NO UPDATE FUNCTION GENERATED.*/";
 
             var t_UniqueColumn = _GetUniqueColumn(Table);
+            var t_UniqueColumnStr = t_UniqueColumn.Type == COLUMN_DATA_TYPE.STRING ? $"DTO.{t_UniqueColumn.Name}" : $"std::to_string(DTO.{t_UniqueColumn.Name})";
             var t_SetText = "";
             var t_NonUniqueColumns = Table.Columns.Where(KV => KV.Value.Property != COLUMN_PROPERTY_TYPE.UNIQUE).Select(KV => KV.Value).ToList();
             foreach(var t_C in t_NonUniqueColumns)
             {
-                t_SetText += $"+ std::to_string(DTO.{t_C.Name}) + \",\" ";
+                t_SetText += t_C.Type == COLUMN_DATA_TYPE.STRING ? $"+ DTO.{t_C.Name} + \",\" " : $"+ std::to_string(DTO.{t_C.Name}) + \",\" ";
             }
             t_SetText = t_SetText.Substring(0, t_SetText.Length - " + \",\" ".Length);
 
             var t_FunctionText = 
             $"void Update({Table.Name + "DTO"} DTO)" + '\n' +
             "{" + '\n' +
-            $"\tm_DB->ExecuteStatement(\"UPDATE {Table.Name} SET \" " + t_SetText + $"+ \" WHERE {t_UniqueColumn.Name} = \" + std::to_string(DTO.{t_UniqueColumn.Name}) + \";\"" + ");" + '\n' +
+            $"\tm_DB->ExecuteStatement(\"UPDATE {Table.Name} SET \" " + t_SetText + $"+ \" WHERE {t_UniqueColumn.Name} = \" + {t_UniqueColumnStr} + \";\"" + ");" + '\n' +
             "}" + '\n';
 
             return t_FunctionText;
@@ -140,10 +141,11 @@ namespace DatabaseORMGenerator
         private string _GenerateDeleteFunction(Table Table)
         {
             var t_UniqueColumn = _GetUniqueColumn(Table);
+            var t_UniqueColumnStr = t_UniqueColumn.Type == COLUMN_DATA_TYPE.STRING ? $"DTO.{t_UniqueColumn.Name}" : $"std::to_string(DTO.{t_UniqueColumn.Name})";
             var t_FunctionText =
             $"void Delete({Table.Name + "DTO"} DTO)" + '\n' +
             "{" + '\n' +
-            $"\tm_DB->ExecuteStatement(\"DELETE FROM {Table.Name} WHERE {t_UniqueColumn.Name} = \" + std::to_string(DTO.{t_UniqueColumn.Name}) + \";\");" + '\n' +
+            $"\tm_DB->ExecuteStatement(\"DELETE FROM {Table.Name} WHERE {t_UniqueColumn.Name} = \" + {t_UniqueColumnStr} + \";\");" + '\n' +
             "}" + '\n';
 
             return t_FunctionText;
