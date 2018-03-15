@@ -13,14 +13,39 @@ namespace DatabaseORMGenerator
 
         private string _GenerateTableSourceFile(Table T)
         {
-            var t_File = _GenerateHeader(T.Name);
+            var t_Variables = "";
+            var t_Includes = 
+                "#include <string>" + '\n' +
+                "#include <vector>" + '\n';
 
             foreach (var t_Col in T.Columns.OrderBy((P) => P.Key))
-                t_File += "\t" + "\t" + _GenerateTableColumn(t_Col.Value) + ";\n";
+                t_Variables += "\t" + "\t" + _GenerateTableColumn(t_Col.Value) + ";\n";
 
-            t_File += _GenerateFooter();
+            //var t_References = T.Columns.Where(C => C.Value.Reference != null).Select(KV => KV.Value.Reference);
+            //foreach(var t_Reference in t_References)
+            //{
+            //    t_Variables += "\t" + "\t" + $"{t_Reference.Table.Name}DTO m_{t_Reference.Table.Name};\n";
+            //    t_Includes += $"#include \"{t_Reference.Table.Name}DTO.h\"" + '\n';
+            //}
 
-            return t_File;
+            var t_ReferencedBy = T.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(KV => KV.Value.Referenced);
+            foreach (var t_Referenced in t_ReferencedBy)
+            {
+                t_Variables += "\t" + "\t" + $"std::vector<{t_Referenced.Table.Name}DTO> {t_Referenced.Table.Name};\n";
+                t_Includes += $"#include \"{t_Referenced.Table.Name}DTO.h\"" + '\n';
+            }
+
+            var t_Header = "/* COMPUTER GENERATED CODE */" + '\n' +
+                "#pragma once" + '\n' +
+                t_Includes +
+                $"class {T.Name}DTO" + '\n' +
+                "{" + '\n' +
+                "\tpublic:" + '\n' +
+                "";
+
+            var t_Footer = "};";
+
+            return t_Header + t_Variables + t_Footer;
         }
 
         private string _GenerateTableColumn(Column C)
@@ -28,21 +53,6 @@ namespace DatabaseORMGenerator
             return _GenerateType(C.Type) + " " + C.Name;
         }
 
-        private string _GenerateHeader(string Name)
-        {
-            return 
-                "/* COMPUTER GENERATED CODE */" + '\n' + 
-                "#include <string>" + '\n' +
-                $"class {Name}DTO" + '\n' +
-                "{" + '\n' +
-                "\tpublic:" + '\n' +
-                "";
-        }
-
-        private string _GenerateFooter()
-        {
-            return "};";
-        }
 
         private string _GenerateType(COLUMN_DATA_TYPE Type)
         {

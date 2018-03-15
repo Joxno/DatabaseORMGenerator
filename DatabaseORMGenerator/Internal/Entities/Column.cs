@@ -35,5 +35,6 @@ namespace DatabaseORMGenerator.Internal
         public COLUMN_PROPERTY_TYPE Property { get; set; } = COLUMN_PROPERTY_TYPE.NONE;
 
         public ColumnReference Reference { get; set; } = null;
+        public List<ColumnReference> Referenced { get; set; } = new List<ColumnReference>();
     }
 }

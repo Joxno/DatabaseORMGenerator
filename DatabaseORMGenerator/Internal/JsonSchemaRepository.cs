@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DatabaseORMGenerator.Internal.JsonSchemaInternals;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,9 +14,11 @@ namespace DatabaseORMGenerator.Internal
         // Privates
         private string m_FilePath = "";
         private Schema m_Schema = null;
+        private List<JsonColumnReference> m_References = null;
 
         private Schema _ParseFile(string Path)
         {
+            m_References = new List<JsonColumnReference>();
             var t_Schema = new Schema();
 
             dynamic t_JsonData = JsonConvert.DeserializeObject(File.ReadAllText(Path));
@@ -25,7 +28,40 @@ namespace DatabaseORMGenerator.Internal
                 t_Schema.Tables.Add(_ParseTable(t_Table.Name.ToString(), t_Table.Columns));
             }
 
+            foreach(var t_Reference in m_References)
+            {
+                var t_Table = t_Schema.Tables.Where(T => T.Name == t_Reference.Table).FirstOrDefault();
+                var t_Column = t_Table.Columns.Where(C => C.Value.Name == t_Reference.Column).FirstOrDefault().Value;
+
+                t_Reference.SourceColumn.Reference = new ColumnReference { Table = t_Table, Column = t_Column };
+                t_Column.Referenced.Add(new ColumnReference { Table = t_Reference.SourceTable, Column = t_Reference.SourceColumn });
+            }
+
             return t_Schema;
+        }
+
+        private COLUMN_REFERENCE_TYPE _ParseReferenceType(string ReferenceType)
+        {
+            if (new string[] { "STD", "S->D", "Source To Destination" }.Where(T => T == ReferenceType).FirstOrDefault() != null)
+            {
+                return COLUMN_REFERENCE_TYPE.SOURCE_TO_DESTINATION;
+            }
+            else if (new string[] { "DTS", "D->S", "Destination To Source" }.Where(T => T == ReferenceType).FirstOrDefault() != null)
+            {
+                return COLUMN_REFERENCE_TYPE.DESTINATION_TO_SOURCE;
+            }
+
+            return COLUMN_REFERENCE_TYPE.NONE;
+        }
+
+        private COLUMN_REFERENCE_RELATIONSHIP _ParseReferenceRelationship(string ReferenceRelationship)
+        {
+            if (ReferenceRelationship == "ONE")
+                return COLUMN_REFERENCE_RELATIONSHIP.ONE;
+            else if (ReferenceRelationship == "MANY")
+                return COLUMN_REFERENCE_RELATIONSHIP.MANY;
+
+            return COLUMN_REFERENCE_RELATIONSHIP.NONE;
         }
 
         private Table _ParseTable(string Name, dynamic Columns)
@@ -34,7 +70,24 @@ namespace DatabaseORMGenerator.Internal
             var t_Index = 0;
             foreach(var t_Column in Columns)
             {
-                t_Table.Columns.Add(t_Index++, _ParseColumn(t_Column.Name.ToString(), t_Column.Type.ToString(), t_Column.Property?.ToString()));
+                var t_ParsedColumn = _ParseColumn(
+                        t_Column.Name.ToString(),
+                        t_Column.Type.ToString(),
+                        t_Column.Property?.ToString()
+                    );
+
+                if(t_Column.Reference != null)
+                {
+                    m_References.Add(new JsonColumnReference
+                    {
+                        SourceTable = t_Table,
+                        SourceColumn = t_ParsedColumn,
+                        Table = t_Column.Reference.Table.ToString(),
+                        Column = t_Column.Reference.Column.ToString()
+                    });
+                }
+
+                t_Table.Columns.Add(t_Index++, t_ParsedColumn);
             }
 
             return t_Table;

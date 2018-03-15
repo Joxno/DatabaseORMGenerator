@@ -22,14 +22,17 @@ namespace DatabaseORMGenerator
                 "#include <memory>" + '\n' +
                 "#include <vector>" + '\n' +
                 "#include <functional>" + '\n' +
+                _GenerateReferencedByIncludeRepos(Table) +
                 "class " + Table.Name + "DTO" + "Repository" + '\n' +
                 "{" + '\n' +
                 "private:" + '\n' +
                 "std::shared_ptr<ISqlContract> m_DB = nullptr;" + '\n' +
+                _GenerateReferencedByRepos(Table) +
                 "public:" + '\n' +
                 $"{Table.Name + "DTO"}Repository(std::shared_ptr<ISqlContract> DB)" + '\n' +
                 "{" + '\n' +
                 "    m_DB = DB;" + '\n' +
+                _GenerateReferencedByCreateRepos(Table) +
                 "}" + '\n' +
                 _GenerateCreateFunction(Table) + '\n' +
                 _GenerateReadFunction(Table) + '\n' +
@@ -37,6 +40,55 @@ namespace DatabaseORMGenerator
                 (t_UniqueColumn != null ? _GenerateUpdateFunction(Table) : "/* NO UNIQUE COLUMN FOUND. NO UPDATE FUNCTION GENERATED */") + '\n' +
                 "" + '\n' +
                 "};";
+        }
+
+        private string _GenerateReferencedByRepos(Table Table)
+        {
+            var t_Text = "";
+            var t_ReferencedBy = Table.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(C => C.Value.Referenced);
+            foreach(var t_Referenced in t_ReferencedBy)
+            {
+                t_Text += $"std::unique_ptr<{t_Referenced.Table.Name}DTORepository> m_{t_Referenced.Table.Name} = nullptr;" + '\n';
+            }
+
+            return t_Text;
+        }
+
+        private string _GenerateReferencedByCreateRepos(Table Table)
+        {
+            var t_Text = "";
+            var t_ReferencedBy = Table.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(C => C.Value.Referenced);
+            foreach (var t_Referenced in t_ReferencedBy)
+            {
+                t_Text += $"m_{t_Referenced.Table.Name} = std::make_unique<{t_Referenced.Table.Name}DTORepository>(DB);" + '\n';
+            }
+
+            return t_Text;
+        }
+
+        private string _GenerateReferencedByIncludeRepos(Table Table)
+        {
+            var t_Text = "";
+            var t_ReferencedBy = Table.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(C => C.Value.Referenced);
+            foreach (var t_Referenced in t_ReferencedBy)
+            {
+                t_Text += $"#include \"{t_Referenced.Table.Name}DTORepository.h\"" + '\n';
+            }
+
+            return t_Text;
+        }
+
+        private string _GenerateReferencedByRead(Table Table)
+        {
+            var t_Text = "";
+            var t_ReferencedBy = Table.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(C => C.Value.Referenced);
+            foreach (var t_Referenced in t_ReferencedBy)
+            {
+                var t_ReferencedColumn = Table.Columns.Where(C => C.Value.Referenced.Contains(t_Referenced)).FirstOrDefault();
+                t_Text += $"DTO.{t_Referenced.Table.Name} = m_{t_Referenced.Table.Name}->Read( [&]({t_Referenced.Table.Name}DTO FilterDTO) {{ return FilterDTO.{t_Referenced.Column.Name} == DTO.{t_ReferencedColumn.Value.Name}; }} );" + '\n';
+            }
+
+            return t_Text;
         }
 
         private Column _GetUniqueColumn(Table Table)
@@ -76,6 +128,7 @@ namespace DatabaseORMGenerator
 
         private string _GenerateReadFunction(Table Table)
         {
+            //([](Animation_AnimationDTO DTO) { return DTO.Id == 0; }
             var t_SelectQuery = $"\"SELECT {String.Join(",", Table.Columns.Select(C => C.Value.Name).ToArray<string>())} FROM {Table.Name};\"";
             var t_DTOAssignment = "";
 
@@ -104,6 +157,7 @@ namespace DatabaseORMGenerator
     {
         [DTO_NAME] DTO {};
         [DTO_VAR_ASSIGNMENT]
+        [DTO_REFERENCEDBY_ASSIGNMENT]
         t_DTOs.push_back(DTO);
     }
 
@@ -111,7 +165,8 @@ namespace DatabaseORMGenerator
 }"
 .Replace("[DTO_NAME]", Table.Name + "DTO")
 .Replace("[SELECT_QUERY]", t_SelectQuery)
-.Replace("[DTO_VAR_ASSIGNMENT]", t_DTOAssignment);
+.Replace("[DTO_VAR_ASSIGNMENT]", t_DTOAssignment)
+.Replace("[DTO_REFERENCEDBY_ASSIGNMENT]", _GenerateReferencedByRead(Table)); ;
 
             t_FunctionText += '\n' +
 @"std::vector<[DTO_NAME]> Read(std::function<bool([DTO_NAME])> Filter)
