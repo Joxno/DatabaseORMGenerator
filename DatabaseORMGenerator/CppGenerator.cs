@@ -19,7 +19,24 @@ namespace DatabaseORMGenerator
                 "#include <vector>" + '\n';
 
             foreach (var t_Col in T.Columns.OrderBy((P) => P.Key))
+            {
+                if (T.Name == "Buff")
+                {
+                    var t = 0;
+                }
+
                 t_Variables += "\t" + "\t" + _GenerateTableColumn(t_Col.Value) + ";\n";
+
+                if (t_Col.Value.Reference != null && t_Col.Value.Reference.Type == COLUMN_REFERENCE_TYPE.SOURCE_TO_DESTINATION)
+                {
+                    if (t_Col.Value.Reference.Relationship == COLUMN_REFERENCE_RELATIONSHIP.MANY)
+                        t_Variables += "\t" + "\t" + $"std::vector<{t_Col.Value.Reference.Table.Name}DTO> {t_Col.Value.Reference.Table.Name};\n";
+                    else if(t_Col.Value.Reference.Relationship == COLUMN_REFERENCE_RELATIONSHIP.ONE)
+                        t_Variables += "\t" + $"\t{t_Col.Value.Reference.Table.Name}DTO {t_Col.Value.Reference.Table.Name};\n";
+
+                    t_Includes += $"#include \"{t_Col.Value.Reference.Table.Name}DTO.h\"" + '\n';
+                }
+            }
 
             //var t_References = T.Columns.Where(C => C.Value.Reference != null).Select(KV => KV.Value.Reference);
             //foreach(var t_Reference in t_References)
@@ -31,8 +48,16 @@ namespace DatabaseORMGenerator
             var t_ReferencedBy = T.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(KV => KV.Value.Referenced);
             foreach (var t_Referenced in t_ReferencedBy)
             {
-                t_Variables += "\t" + "\t" + $"std::vector<{t_Referenced.Table.Name}DTO> {t_Referenced.Table.Name};\n";
-                t_Includes += $"#include \"{t_Referenced.Table.Name}DTO.h\"" + '\n';
+                if(t_Referenced.Type == COLUMN_REFERENCE_TYPE.DESTINATION_TO_SOURCE)
+                {
+                    if (t_Referenced.Relationship == COLUMN_REFERENCE_RELATIONSHIP.MANY)
+                        t_Variables += "\t" + "\t" + $"std::vector<{t_Referenced.Table.Name}DTO> {t_Referenced.Table.Name};\n";
+                    else if (t_Referenced.Relationship == COLUMN_REFERENCE_RELATIONSHIP.ONE)
+                        t_Variables += "\t" + "\t" + $"{t_Referenced.Table.Name}DTO {t_Referenced.Table.Name};\n"; ;
+
+                    t_Includes += $"#include \"{t_Referenced.Table.Name}DTO.h\"" + '\n';
+                }
+                
             }
 
             var t_Header = "/* COMPUTER GENERATED CODE */" + '\n' +

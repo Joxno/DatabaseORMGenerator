@@ -12,6 +12,9 @@ namespace DatabaseORMGenerator
         // Privates
         private string _GenerateSqlRepo(Table Table)
         {
+            var t_ReferencedBy = _GetReferencedBy(Table);
+            var t_References = _GetReferences(Table);
+
             var t_UniqueColumn = _GetUniqueColumn(Table);
             return 
                 "/* COMPUTER GENERATED CODE */" + '\n' +
@@ -22,17 +25,20 @@ namespace DatabaseORMGenerator
                 "#include <memory>" + '\n' +
                 "#include <vector>" + '\n' +
                 "#include <functional>" + '\n' +
-                _GenerateReferencedByIncludeRepos(Table) +
+                _GenerateReferenceIncludeRepos(t_ReferencedBy) +
+                _GenerateReferenceIncludeRepos(t_References) +
                 "class " + Table.Name + "DTO" + "Repository" + '\n' +
                 "{" + '\n' +
                 "private:" + '\n' +
                 "std::shared_ptr<ISqlContract> m_DB = nullptr;" + '\n' +
-                _GenerateReferencedByRepos(Table) +
+                _GenerateReferenceRepos(t_ReferencedBy) +
+                _GenerateReferenceRepos(t_References) +
                 "public:" + '\n' +
                 $"{Table.Name + "DTO"}Repository(std::shared_ptr<ISqlContract> DB)" + '\n' +
                 "{" + '\n' +
                 "    m_DB = DB;" + '\n' +
-                _GenerateReferencedByCreateRepos(Table) +
+                _GenerateReferenceCreateRepos(t_ReferencedBy) +
+                _GenerateReferenceCreateRepos(t_References) +
                 "}" + '\n' +
                 _GenerateCreateFunction(Table) + '\n' +
                 _GenerateReadFunction(Table) + '\n' +
@@ -42,38 +48,45 @@ namespace DatabaseORMGenerator
                 "};";
         }
 
-        private string _GenerateReferencedByRepos(Table Table)
+        private List<ColumnReference> _GetReferencedBy(Table Table)
+        {
+            return Table.Columns
+                .Where(KV => KV.Value.Referenced.Count > 0)
+                .SelectMany(KV => KV.Value.Referenced)
+                .Where(R => R.Type == COLUMN_REFERENCE_TYPE.DESTINATION_TO_SOURCE).ToList();
+        }
+
+        public List<ColumnReference> _GetReferences(Table Table)
+        {
+            return Table.Columns
+                .Where(KV => KV.Value.Reference != null)
+                .Select(KV => KV.Value.Reference)
+                .Where(R => R.Type == COLUMN_REFERENCE_TYPE.SOURCE_TO_DESTINATION).ToList();
+        }
+
+        private string _GenerateReferenceRepos(List<ColumnReference> References)
         {
             var t_Text = "";
-            var t_ReferencedBy = Table.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(C => C.Value.Referenced);
-            foreach(var t_Referenced in t_ReferencedBy)
-            {
-                t_Text += $"std::unique_ptr<{t_Referenced.Table.Name}DTORepository> m_{t_Referenced.Table.Name} = nullptr;" + '\n';
-            }
+            foreach(var t_Reference in References)
+                t_Text += $"std::unique_ptr<{t_Reference.Table.Name}DTORepository> m_{t_Reference.Table.Name} = nullptr;" + '\n';
 
             return t_Text;
         }
 
-        private string _GenerateReferencedByCreateRepos(Table Table)
+        private string _GenerateReferenceCreateRepos(List<ColumnReference> References)
         {
             var t_Text = "";
-            var t_ReferencedBy = Table.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(C => C.Value.Referenced);
-            foreach (var t_Referenced in t_ReferencedBy)
-            {
-                t_Text += $"m_{t_Referenced.Table.Name} = std::make_unique<{t_Referenced.Table.Name}DTORepository>(DB);" + '\n';
-            }
+            foreach (var t_Reference in References)
+                t_Text += $"m_{t_Reference.Table.Name} = std::make_unique<{t_Reference.Table.Name}DTORepository>(DB);" + '\n';
 
             return t_Text;
         }
 
-        private string _GenerateReferencedByIncludeRepos(Table Table)
+        private string _GenerateReferenceIncludeRepos(List<ColumnReference> References)
         {
             var t_Text = "";
-            var t_ReferencedBy = Table.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(C => C.Value.Referenced);
-            foreach (var t_Referenced in t_ReferencedBy)
-            {
-                t_Text += $"#include \"{t_Referenced.Table.Name}DTORepository.h\"" + '\n';
-            }
+            foreach (var t_Reference in References)
+                t_Text += $"#include \"{t_Reference.Table.Name}DTORepository.h\"" + '\n';
 
             return t_Text;
         }
@@ -81,11 +94,30 @@ namespace DatabaseORMGenerator
         private string _GenerateReferencedByRead(Table Table)
         {
             var t_Text = "";
-            var t_ReferencedBy = Table.Columns.Where(C => C.Value.Referenced.Count > 0).SelectMany(C => C.Value.Referenced);
+            var t_ReferencedBy = _GetReferencedBy(Table);
             foreach (var t_Referenced in t_ReferencedBy)
             {
                 var t_ReferencedColumn = Table.Columns.Where(C => C.Value.Referenced.Contains(t_Referenced)).FirstOrDefault();
-                t_Text += $"DTO.{t_Referenced.Table.Name} = m_{t_Referenced.Table.Name}->Read( [&]({t_Referenced.Table.Name}DTO FilterDTO) {{ return FilterDTO.{t_Referenced.Column.Name} == DTO.{t_ReferencedColumn.Value.Name}; }} );" + '\n';
+                t_Text += $"DTO.{t_Referenced.Table.Name} = m_{t_Referenced.Table.Name}->Read( " +
+                    $"[&]({t_Referenced.Table.Name}DTO FilterDTO) {{ return FilterDTO.{t_Referenced.Column.Name} == DTO.{t_ReferencedColumn.Value.Name}; }}" +
+                    ( t_Referenced.Relationship == COLUMN_REFERENCE_RELATIONSHIP.MANY ? ");" : ")[0];") 
+                    + '\n';
+            }
+
+            return t_Text;
+        }
+
+        private string _GenerateReferenceRead(Table Table)
+        {
+            var t_Text = "";
+            var t_References = _GetReferences(Table);
+            foreach (var t_Reference in t_References)
+            {
+                var t_ReferencedColumn = Table.Columns.Where(C => C.Value.Reference == t_Reference).FirstOrDefault();
+                t_Text += $"DTO.{t_Reference.Table.Name} = m_{t_Reference.Table.Name}->Read( " +
+                    $"[&]({t_Reference.Table.Name}DTO FilterDTO) {{ return FilterDTO.{t_Reference.Column.Name} == DTO.{t_ReferencedColumn.Value.Name}; }}" +
+                    (t_Reference.Relationship == COLUMN_REFERENCE_RELATIONSHIP.MANY ? ");" : ")[0];")
+                    + '\n';
             }
 
             return t_Text;
@@ -158,6 +190,7 @@ namespace DatabaseORMGenerator
         [DTO_NAME] DTO {};
         [DTO_VAR_ASSIGNMENT]
         [DTO_REFERENCEDBY_ASSIGNMENT]
+        [DTO_REFERENCES_ASSIGNMENT]
         t_DTOs.push_back(DTO);
     }
 
@@ -166,7 +199,8 @@ namespace DatabaseORMGenerator
 .Replace("[DTO_NAME]", Table.Name + "DTO")
 .Replace("[SELECT_QUERY]", t_SelectQuery)
 .Replace("[DTO_VAR_ASSIGNMENT]", t_DTOAssignment)
-.Replace("[DTO_REFERENCEDBY_ASSIGNMENT]", _GenerateReferencedByRead(Table)); ;
+.Replace("[DTO_REFERENCEDBY_ASSIGNMENT]", _GenerateReferencedByRead(Table))
+.Replace("[DTO_REFERENCES_ASSIGNMENT]", _GenerateReferenceRead(Table));
 
             t_FunctionText += '\n' +
 @"std::vector<[DTO_NAME]> Read(std::function<bool([DTO_NAME])> Filter)
@@ -179,6 +213,8 @@ namespace DatabaseORMGenerator
     {
         [DTO_NAME] DTO {};
         [DTO_VAR_ASSIGNMENT]
+        [DTO_REFERENCEDBY_ASSIGNMENT]
+        [DTO_REFERENCES_ASSIGNMENT]
 
         if(Filter(DTO))
             t_DTOs.push_back(DTO);
@@ -188,7 +224,9 @@ namespace DatabaseORMGenerator
 }"
 .Replace("[DTO_NAME]", Table.Name + "DTO")
 .Replace("[SELECT_QUERY]", t_SelectQuery)
-.Replace("[DTO_VAR_ASSIGNMENT]", t_DTOAssignment);
+.Replace("[DTO_VAR_ASSIGNMENT]", t_DTOAssignment)
+.Replace("[DTO_REFERENCEDBY_ASSIGNMENT]", _GenerateReferencedByRead(Table))
+.Replace("[DTO_REFERENCES_ASSIGNMENT]", _GenerateReferenceRead(Table));
 
             return t_FunctionText;
         }

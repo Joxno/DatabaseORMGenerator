@@ -28,16 +28,34 @@ namespace DatabaseORMGenerator.Internal
                 t_Schema.Tables.Add(_ParseTable(t_Table.Name.ToString(), t_Table.Columns));
             }
 
-            foreach(var t_Reference in m_References)
-            {
-                var t_Table = t_Schema.Tables.Where(T => T.Name == t_Reference.Table).FirstOrDefault();
-                var t_Column = t_Table.Columns.Where(C => C.Value.Name == t_Reference.Column).FirstOrDefault().Value;
-
-                t_Reference.SourceColumn.Reference = new ColumnReference { Table = t_Table, Column = t_Column };
-                t_Column.Referenced.Add(new ColumnReference { Table = t_Reference.SourceTable, Column = t_Reference.SourceColumn });
-            }
+            _ResolveReferences(t_Schema);
 
             return t_Schema;
+        }
+
+        private void _ResolveReferences(Schema Schema)
+        {
+            foreach (var t_Reference in m_References)
+            {
+                var t_Table = Schema.Tables.Where(T => T.Name == t_Reference.Table).FirstOrDefault();
+                var t_Column = t_Table.Columns.Where(C => C.Value.Name == t_Reference.Column).FirstOrDefault().Value;
+
+                t_Reference.SourceColumn.Reference = new ColumnReference
+                {
+                    Table = t_Table,
+                    Column = t_Column,
+                    Type = _ParseReferenceType(t_Reference.Type),
+                    Relationship = _ParseReferenceRelationship(t_Reference.Relationship)
+                };
+
+                t_Column.Referenced.Add(new ColumnReference
+                {
+                    Table = t_Reference.SourceTable,
+                    Column = t_Reference.SourceColumn,
+                    Type = _ParseReferenceType(t_Reference.Type),
+                    Relationship = _ParseReferenceRelationship(t_Reference.Relationship)
+                });
+            }
         }
 
         private COLUMN_REFERENCE_TYPE _ParseReferenceType(string ReferenceType)
@@ -83,7 +101,9 @@ namespace DatabaseORMGenerator.Internal
                         SourceTable = t_Table,
                         SourceColumn = t_ParsedColumn,
                         Table = t_Column.Reference.Table.ToString(),
-                        Column = t_Column.Reference.Column.ToString()
+                        Column = t_Column.Reference.Column.ToString(),
+                        Type = t_Column.Reference.Type?.ToString(),
+                        Relationship = t_Column.Reference.Relationship?.ToString()
                     });
                 }
 
