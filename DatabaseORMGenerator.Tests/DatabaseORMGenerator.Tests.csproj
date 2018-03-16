@@ -72,6 +72,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqliteGeneratorTests.cs" />
     <Compile Include="SqliteSchemaRepositoryTests.cs" />
+    <Compile Include="TSQLSchemaRepositoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

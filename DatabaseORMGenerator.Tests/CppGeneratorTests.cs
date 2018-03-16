@@ -29,7 +29,7 @@ namespace DatabaseORMGenerator.Tests
             var t_CppGen = new CppGenerator();
             var t_Files = t_CppGen.GenerateSource(t_Schema);
 
-            Assert.IsTrue(t_Files.Count == 1 && t_Files[0].Name == "TestTable.h" && t_Files[0].Content.Length > 0);
+            Assert.IsTrue(t_Files.Count == 1 && t_Files[0].Name == "TestTableDTO.h" && t_Files[0].Content.Length > 0);
         }
     }
 }

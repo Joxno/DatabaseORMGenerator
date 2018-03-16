@@ -74,6 +74,7 @@
     <Compile Include="Internal\JsonSchemaInternals\JsonColumnReference.cs" />
     <Compile Include="Internal\JsonSchemaRepository.cs" />
     <Compile Include="Internal\SqliteSchemaRepository.cs" />
+    <Compile Include="Internal\TSQLSchemaRepository.cs" />
     <Compile Include="JSGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\Entities\Schema.cs" />

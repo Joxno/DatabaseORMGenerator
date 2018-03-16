@@ -29,6 +29,10 @@ namespace DatabaseORMGeneratorCLI
             {
                 m_Repo = new SqliteSchemaRepository(m_Options.SchemaFrom);
             }
+            else if(m_Options.SchemaFrom.Contains("Server="))
+            {
+                m_Repo = new TSQLSchemaRepository(m_Options.SchemaFrom);
+            }
 
             var t_Generators = m_Options.GenerateDTO.Split(',');
             foreach(var t_GenText in t_Generators)

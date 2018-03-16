@@ -177,7 +177,18 @@ namespace DatabaseORMGenerator.Internal
 
         private string _GenerateColumn(Column Column)
         {
-            return "{ \"Name\":\"" + Column.Name + "\", \"Type\":\"" + _GenerateType(Column.Type) + "\" }";
+            var t_ColText = "{ \"Name\":\"" + Column.Name + "\", \"Type\":\"" + _GenerateType(Column.Type) + "\"";
+            if (Column.Reference != null)
+            {
+                var t_ReferenceType = Column.Reference.Type == COLUMN_REFERENCE_TYPE.DESTINATION_TO_SOURCE ? "DTS" : "STD";
+                var t_ReferenceRelationship = Column.Reference.Relationship == COLUMN_REFERENCE_RELATIONSHIP.ONE ? "ONE" : "MANY";
+                t_ColText += ", \n";
+                t_ColText += $"\"Reference\": {{ \"Table\":\"{Column.Reference.Table.Name}\", \"Column\":\"{Column.Reference.Column.Name}\", \"Type\":\"{t_ReferenceType}\",\"Relationship\":\"{t_ReferenceRelationship}\" }}";
+            }
+
+            t_ColText += "}";
+
+            return t_ColText;
         }
 
         private string _GenerateType(COLUMN_DATA_TYPE Type)

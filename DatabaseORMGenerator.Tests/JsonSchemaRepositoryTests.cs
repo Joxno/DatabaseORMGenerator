@@ -20,6 +20,18 @@ namespace DatabaseORMGenerator.Tests
         }
 
         [TestMethod]
+        public void TestReferencesFromJsonFile()
+        {
+            File.WriteAllText("JsonTestSchema.json", _CreateJsonFile());
+            var t_Repo = new JsonSchemaRepository("JsonTestSchema.json");
+            var t_Schema = t_Repo.GetSchema();
+
+            Assert.IsTrue(t_Schema.Tables[1].Name == "TestFoobar2");
+            Assert.IsNotNull(t_Schema.Tables[1].Columns[1].Reference);
+            Assert.IsTrue(t_Schema.Tables[1].Columns[1].Reference.Type == COLUMN_REFERENCE_TYPE.SOURCE_TO_DESTINATION);
+        }
+
+        [TestMethod]
         public void SaveSchemaToJsonFile()
         {
             var t_Schema = _GenerateTestSchema();
@@ -44,6 +56,22 @@ namespace DatabaseORMGenerator.Tests
             Columns: [
                 { Name:""Id"", Type:""int"" },
                 { Name:""Foobar"", Type:""string"" },
+            ]
+        },
+        {
+            Name : ""TestFoobar2"",
+            Columns: [
+                { Name:""Id"", Type:""int"" },
+                {
+                    Name: ""TestFoobarId"",
+                    Type: ""int"",
+                    Reference: {
+                        Table: ""TestFoobar"",
+                        Column: ""Id"",
+                        Type: ""STD"",
+                        Relationship: ""ONE""
+                    }
+                }
             ]
         }
     ]
