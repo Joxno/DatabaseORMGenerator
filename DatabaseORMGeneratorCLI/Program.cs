@@ -27,7 +27,8 @@ namespace DatabaseORMGeneratorCLI
                     new GeneratorBinding().Bind<CSharpGenerator>("C#"),
                     new GeneratorBinding().Bind<SqliteGenerator>("Sqlite"),
                     new GeneratorBinding().Bind<JSGenerator>("JS"),
-                    new GeneratorBinding().Bind<CppSqlGenerator>("C++SQL")
+                    new GeneratorBinding().Bind<CppSqlGenerator>("C++SQL"),
+                    new GeneratorBinding().Bind<PSGenerator>("PS")
                 }
             );
             t_CLI.SetupArguments(args);

@@ -79,6 +79,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\Entities\Schema.cs" />
     <Compile Include="Internal\Entities\Table.cs" />
+    <Compile Include="PSGenerator.cs" />
+    <Compile Include="PSTSQLGenerator.cs" />
     <Compile Include="SqliteGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
