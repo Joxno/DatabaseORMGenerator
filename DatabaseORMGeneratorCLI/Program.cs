@@ -13,7 +13,7 @@ namespace DatabaseORMGeneratorCLI
     {
         static void Main(string[] args)
         {
-            //args = new string[] { "--SchemaFrom", "TOW.json", "--GenerateDTO", "C++SQL", "--SaveTo", "Generated" };
+            args = new string[] { "--SchemaFrom", "TOW.json", "--GenerateDTO", "PSSqlite", "--SaveTo", "Generated" };
             // -SchemaFrom
             // -GenerateDTO
             // -GenerateContext
@@ -28,7 +28,9 @@ namespace DatabaseORMGeneratorCLI
                     new GeneratorBinding().Bind<SqliteGenerator>("Sqlite"),
                     new GeneratorBinding().Bind<JSGenerator>("JS"),
                     new GeneratorBinding().Bind<CppSqlGenerator>("C++SQL"),
-                    new GeneratorBinding().Bind<PSGenerator>("PS")
+                    new GeneratorBinding().Bind<PSGenerator>("PS"),
+                    new GeneratorBinding().Bind<PSTSQLGenerator>("PSTSQL"),
+                    new GeneratorBinding().Bind<PSSqliteGenerator>("PSSqlite")
                 }
             );
             t_CLI.SetupArguments(args);
