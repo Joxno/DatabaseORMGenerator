@@ -100,6 +100,31 @@ function New-[TABLE_NAME]DTORepository([System.Data.SQLite.SQLiteConnection] $Co
             return "";
         }
 
+        private string _GenerateContext(Schema Schema)
+        {
+            var t_Repos = "";
+            foreach(var t_Table in Schema.Tables)
+            {
+                t_Repos += $"$_CONTEXT | Add-Member -MemberType NoteProperty -Name {t_Table.Name} -Value $(New-{t_Table.Name}DTORepository($Con))" + '\n';
+            }
+
+            var t_Text = 
+$@"
+function New-StorageContext([System.Data.SQLite.SQLiteConnection] $Con)
+{{
+    $_CONTEXT = New-Object -TypeName psobject
+    $_CONTEXT | Add-Member -MemberType NoteProperty -Name Connection -Value $Con
+
+    {t_Repos}
+
+    return $_CONTEXT;
+}}
+";
+
+
+            return t_Text;
+        }
+
         // Interface
         public List<ORMSourceFile> GenerateSource(Schema Schema)
         {
@@ -108,7 +133,7 @@ function New-[TABLE_NAME]DTORepository([System.Data.SQLite.SQLiteConnection] $Co
 
             var t_Files = t_PSGen.GenerateSource(Schema);
 
-            t_Files.First().Content += _GenerateSchema(Schema);
+            t_Files.First().Content += _GenerateSchema(Schema) + _GenerateContext(Schema);
 
             //t_Files.Add(new ORMSourceFile { Name = Schema.Name + ".ps1", Content = _GenerateSchema(Schema) });
 
