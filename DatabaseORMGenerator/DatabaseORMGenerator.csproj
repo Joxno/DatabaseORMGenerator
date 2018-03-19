@@ -64,6 +64,17 @@
     <Compile Include="Cpp\CppGenerator.cs" />
     <Compile Include="Cpp\CppSqlGenerator.cs" />
     <Compile Include="CSharp\CSharpGenerator.cs" />
+    <Compile Include="CSharp\Generators\Component\Block.cs" />
+    <Compile Include="CSharp\Generators\Component\ClassDef.cs" />
+    <Compile Include="CSharp\Generators\Component\MultipleStatement.cs" />
+    <Compile Include="CSharp\Generators\Component\PropertyDef.cs" />
+    <Compile Include="CSharp\Generators\Component\Statement.cs" />
+    <Compile Include="CSharp\Generators\Component\TypeDef.cs" />
+    <Compile Include="CSharp\Generators\Component\UsingDef.cs" />
+    <Compile Include="CSharp\Generators\Component\VariableDef.cs" />
+    <Compile Include="CSharp\Generators\CSharpContextFileGenerator.cs" />
+    <Compile Include="CSharp\Generators\CSharpDTOFileGenerator.cs" />
+    <Compile Include="CSharp\Generators\CSharpRepositoryFileGenerator.cs" />
     <Compile Include="Internal\Entities\ColumnDataType.cs" />
     <Compile Include="Internal\Entities\ColumnReference.cs" />
     <Compile Include="Internal\Entities\Column.cs" />
