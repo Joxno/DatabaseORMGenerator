@@ -73,6 +73,7 @@
     <Compile Include="SqliteGeneratorTests.cs" />
     <Compile Include="SqliteSchemaRepositoryTests.cs" />
     <Compile Include="TSQLSchemaRepositoryTests.cs" />
+    <Compile Include="PowershellGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -7,12 +7,6 @@ using System.Threading.Tasks;
 
 namespace DatabaseORMGenerator.Powershell.Generators.Component
 {
-    public class PowershellVariableDef
-    {
-        public string Name { get; set; } = "";
-        public string DataType { get; set; } = "";
-    }
-
     public class FunctionDef : IFileComponentGenerator
     {
         // Privates

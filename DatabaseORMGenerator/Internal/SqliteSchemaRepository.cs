@@ -91,10 +91,5 @@ namespace DatabaseORMGenerator.Internal
         {
             return m_Schema;
         }
-
-        public void SaveSchema(Schema Schema)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

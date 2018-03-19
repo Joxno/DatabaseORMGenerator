@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DatabaseORMGenerator.Internal;
 using System.IO;
 using System.Collections.Generic;
+using DatabaseORMGenerator.Json;
 
 namespace DatabaseORMGenerator.Tests
 {
@@ -35,11 +36,14 @@ namespace DatabaseORMGenerator.Tests
         public void SaveSchemaToJsonFile()
         {
             var t_Schema = _GenerateTestSchema();
+            t_Schema.Name = "SaveJsonTestSchema";
+            var t_Gen = new JsonGenerator();
+            var t_Files = t_Gen.GenerateSource(t_Schema);
+
+            File.WriteAllText(t_Files[0].Name, t_Files[0].Content);
+            Assert.IsTrue(File.Exists("SaveJsonTestSchema.json"));
 
             var t_Repo = new JsonSchemaRepository("SaveJsonTestSchema.json");
-            t_Repo.SaveSchema(t_Schema);
-
-            Assert.IsTrue(File.Exists("SaveJsonTestSchema.json"));
 
             var t_InterpretedSchema = t_Repo.GetSchema();
 

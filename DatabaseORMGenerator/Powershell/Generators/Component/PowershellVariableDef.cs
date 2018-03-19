@@ -7,16 +7,11 @@ using System.Threading.Tasks;
 
 namespace DatabaseORMGenerator.Powershell.Generators.Component
 {
-    public class Statement : IFileComponentGenerator
+    public class PowershellVariableDef : IFileComponentGenerator
     {
-        // Privates
-        private string m_Statement = "";
+        public string Name { get; set; } = "";
+        public string DataType { get; set; } = "";
 
-        // Interface
-        public Statement(string Statement)
-        {
-            m_Statement = Statement;
-        }
         public void AddComponentGenerator(IFileComponentGenerator Component)
         {
             throw new NotImplementedException();
@@ -24,7 +19,7 @@ namespace DatabaseORMGenerator.Powershell.Generators.Component
 
         public string Generate()
         {
-            return m_Statement + "\n";
+            return $"[{DataType}] ${Name}";
         }
     }
 }

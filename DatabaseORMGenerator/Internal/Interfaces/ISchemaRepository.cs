@@ -9,6 +9,5 @@ namespace DatabaseORMGenerator.Internal
     public interface ISchemaRepository
     {
         Schema GetSchema();
-        void SaveSchema(Schema Schema);
     }
 }

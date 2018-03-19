@@ -1,5 +1,6 @@
 ﻿using DatabaseORMGenerator;
 using DatabaseORMGenerator.Internal;
+using DatabaseORMGenerator.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,7 +31,8 @@ namespace DatabaseORMGeneratorCLI
                     new GeneratorBinding().Bind<CppSqlGenerator>("C++SQL"),
                     new GeneratorBinding().Bind<PSGenerator>("PS"),
                     new GeneratorBinding().Bind<PSTSQLGenerator>("PSTSQL"),
-                    new GeneratorBinding().Bind<PSSqliteGenerator>("PSSqlite")
+                    new GeneratorBinding().Bind<PSSqliteGenerator>("PSSqlite"),
+                    new GeneratorBinding().Bind<JsonGenerator>("JSON")
                 }
             );
             t_CLI.SetupArguments(args);

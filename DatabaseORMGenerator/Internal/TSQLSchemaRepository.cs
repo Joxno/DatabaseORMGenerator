@@ -138,10 +138,5 @@ WHERE type = 'U' AND tabl.object_id = [_OBJECT_ID_]"
             m_Schema = _ParseSchema(m_ConnectionString);
             return m_Schema;
         }
-
-        public void SaveSchema(Schema Schema)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

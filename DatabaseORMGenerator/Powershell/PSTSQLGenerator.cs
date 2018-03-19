@@ -27,9 +27,12 @@ namespace DatabaseORMGenerator
                 new List<IFileComponentGenerator>
                 {
                     _GenerateRead(Table),
+                    _GenerateCreate(Table),
                     new Statement("$_REPO = New-Object -TypeName psobject"),
                     new Statement("$_REPO | Add-Member -MemberType NoteProperty -Name Connection -Value $Con"),
-                    new Statement("$_REPO | Add-Member -MemberType ScriptMethod -Name Read -Value $_READ")
+                    new Statement("$_REPO | Add-Member -MemberType ScriptMethod -Name Create -Value $_CREATE"),
+                    new Statement("$_REPO | Add-Member -MemberType ScriptMethod -Name Read -Value $_READ"),
+                    new Statement("return $_REPO;")
                 })
             });
 
@@ -43,8 +46,7 @@ namespace DatabaseORMGenerator
 
             var t_Gen = new MultipleStatement(new List<IFileComponentGenerator>
             {
-                new Statement("$_READ = "),
-                new ScriptBlock(
+                new VariableScriptBlock("_READ",
                     new List<IFileComponentGenerator>
                     {
                         new Statement($"$Reader = [System.Data.SqlClient.SqlCommand]::new(\"SELECT {t_ColumnsText} FROM {Table.Name};\", $this.Connection).ExecuteReader();"),
@@ -63,6 +65,23 @@ namespace DatabaseORMGenerator
                     })
             });
             
+            return t_Gen;
+        }
+
+        private IFileComponentGenerator _GenerateCreate(Table Table)
+        {
+            var t_Columns = Table.Columns.Select(KV => KV.Value);
+            var t_ColumnsText = string.Join(",", t_Columns.Select(K => K.Name));
+            var t_ColumnValues = string.Join(",", t_Columns.Select(K => "'$($DTO." + K.Name + ")'"));
+            var t_InsertQuery = $"SET IDENTITY_INSERT {Table.Name} ON; INSERT INTO {Table.Name}({t_ColumnsText}) VALUES({t_ColumnValues});";
+
+            var t_Gen = new VariableScriptBlock("_CREATE", new List<IFileComponentGenerator>
+            {
+                new Statement("param($DTO)"),
+                new Statement($"$Cmd = [System.Data.SqlClient.SqlCommand]::new(\"{t_InsertQuery}\",$this.Connection);"),
+                new Statement("$Cmd.ExecuteNonQuery();")
+            });
+
             return t_Gen;
         }
 

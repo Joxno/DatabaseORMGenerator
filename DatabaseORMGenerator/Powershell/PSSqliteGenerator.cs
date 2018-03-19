@@ -15,52 +15,26 @@ namespace DatabaseORMGenerator
         // Privates
         private string _GenerateSchema(Schema Schema)
         {
-            var t_Content = "";
-
-            foreach (var t_Table in Schema.Tables)
-            {
-                t_Content += _GenerateRepo(t_Table);
-            }
-
-            return t_Content;
+            return string.Join("", Schema.Tables.Select(T => _GenerateRepo(T)));
         }
 
         private string _GenerateRepo(Table Table)
         {
-            var t_Text =
-@"
-function New-[TABLE_NAME]DTORepository([System.Data.SQLite.SQLiteConnection] $Con)
-{
-    $CreateFunc = {
-    [CREATE_FUNCTION]    
-    }
-    $ReadFunc = {
-    [READ_FUNCTION]
-    }
-    $UpdateFunc = {
-    [UPDATE_FUNCTION]    
-    }
-    $DeleteFunc = {
-    [DELETE_FUNCTION]
-    }
-    
-    $_REPO = New-Object -Type psobject
-    $_REPO | Add-Member -MemberType NoteProperty -Name Connection -Value $Con
-    $_REPO | Add-Member -MemberType ScriptMethod -Name Create -Value $CreateFunc
-    $_REPO | Add-Member -MemberType ScriptMethod -Name Read -Value $ReadFunc
-    $_REPO | Add-Member -MemberType ScriptMethod -Name Update -Value $UpdateFunc
-    $_REPO | Add-Member -MemberType ScriptMethod -Name Delete -Value $DeleteFunc
+            var t_File = new PSFileGenerator(new List<IFileComponentGenerator>
+            {
+                new FunctionDef($"New-{Table.Name}DTORepository",
+                new List<PowershellVariableDef> { new PowershellVariableDef { DataType = "System.Data.SQLite.SQLiteConnection", Name = "Con" } },
+                new List<IFileComponentGenerator>
+                {
+                    _GenerateRead(Table),
+                    new Statement("$_REPO = New-Object -TypeName psobject"),
+                    new Statement("$_REPO | Add-Member -MemberType NoteProperty -Name Connection -Value $Con"),
+                    new Statement("$_REPO | Add-Member -MemberType ScriptMethod -Name Read -Value $_READ"),
+                    new Statement("return $_REPO;")
+                })
+            });
 
-    return $_REPO;
-}"
-.Replace("[TABLE_NAME]", Table.Name)
-.Replace("[CREATE_FUNCTION]", _GenerateCreateFunction(Table))
-.Replace("[READ_FUNCTION]", _GenerateReadFunction(Table))
-.Replace("[UPDATE_FUNCTION]", _GenerateUpdateFunction(Table))
-.Replace("[DELETE_FUNCTION]", _GenerateDeleteFunction(Table))
-+'\n';
-
-            return t_Text;
+            return t_File.Generate().Content;
         }
 
         private string _GenerateCreateFunction(Table Table)
@@ -68,29 +42,33 @@ function New-[TABLE_NAME]DTORepository([System.Data.SQLite.SQLiteConnection] $Co
             return "";
         }
 
-        private string _GenerateReadFunction(Table Table)
+        private IFileComponentGenerator _GenerateRead(Table Table)
         {
             var t_Columns = Table.Columns.Select(KV => KV.Value);
             var t_ColumnsText = string.Join(",", t_Columns.Select(K => K.Name));
-            var t_AssignmentText = "";
-            foreach(var t_C in t_Columns)
+
+            var t_Gen = new MultipleStatement(new List<IFileComponentGenerator>
             {
-                t_AssignmentText += $"$DTO.{t_C.Name} = $Reader[\"{t_C.Name}\"];" + '\n';
-            }
+                new VariableScriptBlock("_READ",
+                    new List<IFileComponentGenerator>
+                    {
+                        new Statement($"$Reader = [System.Data.SQLite.SQLiteCommand]::new(\"SELECT {t_ColumnsText} FROM {Table.Name};\", $this.Connection).ExecuteReader();"),
+                        new Statement("$DTOs = @();"),
+                        new Statement("while ($Reader.Read() -eq $true)"),
+                        new ScriptBlock(new List<IFileComponentGenerator>
+                        {
+                            new Statement($"$DTO = New-{Table.Name}DTO;"),
+                            new MultipleStatement
+                            (
+                                t_Columns.Select(C => new Statement($"$DTO.{C.Name} = $Reader[\"{C.Name}\"];")).ToList<IFileComponentGenerator>()
+                            ),
+                            new Statement("$DTOs += $DTO;")
+                        }),
+                        new Statement("return $DTOs;")
+                    })
+            });
 
-            var t_Text = $@"$Reader = [System.Data.SQLite.SQLiteCommand]::new(""SELECT {t_ColumnsText} FROM {Table.Name};"", $this.Connection).ExecuteReader();
-    $DTOs = @();
-    while ($Reader.Read() -eq $true)
-    {{
-    $DTO = New-{Table.Name}DTO;
-    {t_AssignmentText}
-    $DTOs += $DTO;
-    }}
-
-    return $DTOs; 
-";
-
-            return t_Text;
+            return t_Gen;
         }
 
         private string _GenerateUpdateFunction(Table Table)

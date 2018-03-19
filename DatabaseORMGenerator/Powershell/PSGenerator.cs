@@ -13,12 +13,12 @@ namespace DatabaseORMGenerator
     public class PSGenerator : IDTOGenerator
     {
         // Privates
-        public string _GenerateSchema(Schema Schema)
+        private string _GenerateSchema(Schema Schema)
         {
             return string.Join("\n", Schema.Tables.Select(T => _GenerateTable(T)));
         }
 
-        public string _GenerateTable(Table Table)
+        private string _GenerateTable(Table Table)
         {
             var t_FileGenerator = new PSFileGenerator(new List<IFileComponentGenerator>
             {
