@@ -1,4 +1,7 @@
 ﻿using DatabaseORMGenerator.Internal;
+using DatabaseORMGenerator.Internal.Interfaces;
+using DatabaseORMGenerator.Powershell.Generators;
+using DatabaseORMGenerator.Powershell.Generators.Component;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,40 +105,36 @@ function New-[TABLE_NAME]DTORepository([System.Data.SQLite.SQLiteConnection] $Co
 
         private string _GenerateContext(Schema Schema)
         {
-            var t_Repos = "";
-            foreach(var t_Table in Schema.Tables)
+            var t_FileGenerator = new PSFileGenerator(
+            new List<IFileComponentGenerator>
             {
-                t_Repos += $"$_CONTEXT | Add-Member -MemberType NoteProperty -Name {t_Table.Name} -Value $(New-{t_Table.Name}DTORepository($Con))" + '\n';
-            }
+                new FunctionDef($"New-StorageContext", 
+                new List<PowershellVariableDef>{ new PowershellVariableDef { DataType = "System.Data.SQLite.SQLiteConnection", Name = "Con" } },
+                new List<IFileComponentGenerator>
+                {
+                    new Statement("$_CONTEXT = New-Object -TypeName psobject"),
+                    new Statement("$_CONTEXT | Add-Member -MemberType NoteProperty -Name Connection -Value $Con"),
+                    new MultipleStatement
+                    (
+                        Schema.Tables.Select
+                        (
+                            T => new Statement($"$_CONTEXT | Add-Member -MemberType NoteProperty -Name {T.Name} -Value $(New-{T.Name}DTORepository($Con))")
+                        )
+                        .ToList<IFileComponentGenerator>()
+                    ),
+                    new Statement("return $_CONTEXT;")
+                })
+            });
 
-            var t_Text = 
-$@"
-function New-StorageContext([System.Data.SQLite.SQLiteConnection] $Con)
-{{
-    $_CONTEXT = New-Object -TypeName psobject
-    $_CONTEXT | Add-Member -MemberType NoteProperty -Name Connection -Value $Con
-
-    {t_Repos}
-
-    return $_CONTEXT;
-}}
-";
-
-
-            return t_Text;
+            return t_FileGenerator.Generate().Content;
         }
 
         // Interface
         public List<ORMSourceFile> GenerateSource(Schema Schema)
         {
             var t_PSGen = new PSGenerator();
-
-
             var t_Files = t_PSGen.GenerateSource(Schema);
-
             t_Files.First().Content += _GenerateSchema(Schema) + _GenerateContext(Schema);
-
-            //t_Files.Add(new ORMSourceFile { Name = Schema.Name + ".ps1", Content = _GenerateSchema(Schema) });
 
             return t_Files;
         }

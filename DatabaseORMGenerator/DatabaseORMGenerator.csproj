@@ -69,6 +69,8 @@
     <Compile Include="Internal\Entities\Column.cs" />
     <Compile Include="Internal\Interfaces\IContextGenerator.cs" />
     <Compile Include="Internal\Interfaces\IDTOGenerator.cs" />
+    <Compile Include="Internal\Interfaces\IFileComponentGenerator.cs" />
+    <Compile Include="Internal\Interfaces\IFileGenerator.cs" />
     <Compile Include="Internal\Interfaces\ISchemaRepository.cs" />
     <Compile Include="Internal\Entities\ORMSourceFile.cs" />
     <Compile Include="Internal\JsonSchemaInternals\JsonColumnReference.cs" />
@@ -76,18 +78,24 @@
     <Compile Include="Internal\SqliteSchemaRepository.cs" />
     <Compile Include="Internal\TSQLSchemaRepository.cs" />
     <Compile Include="JSGenerator.cs" />
+    <Compile Include="Powershell\Generators\Component\FunctionDef.cs" />
+    <Compile Include="Powershell\Generators\Component\MultipleStatement.cs" />
+    <Compile Include="Powershell\Generators\Component\ScriptBlock.cs" />
+    <Compile Include="Powershell\Generators\Component\Statement.cs" />
+    <Compile Include="Powershell\Generators\PSFileGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internal\Entities\Schema.cs" />
     <Compile Include="Internal\Entities\Table.cs" />
-    <Compile Include="PSGenerator.cs" />
-    <Compile Include="PSSqliteGenerator.cs" />
-    <Compile Include="PSTSQLGenerator.cs" />
+    <Compile Include="Powershell\PSGenerator.cs" />
+    <Compile Include="Powershell\PSSqliteGenerator.cs" />
+    <Compile Include="Powershell\PSTSQLGenerator.cs" />
     <Compile Include="SqliteGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.106.0\build\net451\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
