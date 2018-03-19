@@ -108,6 +108,10 @@ WHERE type = 'U' AND tabl.object_id = [_OBJECT_ID_]"
                 case "int":
                 case "integer":
                     return COLUMN_DATA_TYPE.INTEGER;
+
+                case "date":
+                case "datetime":
+
                 case "char":
                 case "nvarchar":
                 case "varchar":

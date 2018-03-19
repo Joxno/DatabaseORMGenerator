@@ -85,6 +85,32 @@ namespace DatabaseORMGenerator
             return t_Gen;
         }
 
+        private string _GenerateContext(Schema Schema)
+        {
+            var t_FileGenerator = new PSFileGenerator(
+            new List<IFileComponentGenerator>
+            {
+                new FunctionDef($"New-StorageContext",
+                new List<PowershellVariableDef>{ new PowershellVariableDef { DataType = "System.Data.SqlClient.SqlConnection", Name = "Con" } },
+                new List<IFileComponentGenerator>
+                {
+                    new Statement("$_CONTEXT = New-Object -TypeName psobject"),
+                    new Statement("$_CONTEXT | Add-Member -MemberType NoteProperty -Name Connection -Value $Con"),
+                    new MultipleStatement
+                    (
+                        Schema.Tables.Select
+                        (
+                            T => new Statement($"$_CONTEXT | Add-Member -MemberType NoteProperty -Name {T.Name} -Value $(New-{T.Name}DTORepository($Con))")
+                        )
+                        .ToList<IFileComponentGenerator>()
+                    ),
+                    new Statement("return $_CONTEXT;")
+                })
+            });
+
+            return t_FileGenerator.Generate().Content;
+        }
+
 
         // Interface
         public List<ORMSourceFile> GenerateSource(Schema Schema)
@@ -92,7 +118,7 @@ namespace DatabaseORMGenerator
             var t_PSGen = new PSGenerator();
             var t_Files = t_PSGen.GenerateSource(Schema);
 
-            t_Files.First().Content += _GenerateSchema(Schema); // + _GenerateContext(Schema);
+            t_Files.First().Content += _GenerateSchema(Schema) + _GenerateContext(Schema);
 
             return t_Files;
         }

@@ -46,7 +46,7 @@ namespace DatabaseORMGenerator.Powershell.Generators.Component
 
         public string Generate()
         {
-            var t_Parameters = string.Join(",", m_Parameters.Select(V => $"[{V.DataType}] ${V.Name}"));
+            var t_Parameters = string.Join(",", m_Parameters.Select(V => V.Generate()));
 
             var t_Text = $"function {m_Name}({t_Parameters})\n";
             t_Text += "{\n";
