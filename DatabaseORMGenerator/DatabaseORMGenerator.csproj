@@ -92,6 +92,10 @@
     <Compile Include="Powershell\PSGenerator.cs" />
     <Compile Include="Powershell\PSSqliteGenerator.cs" />
     <Compile Include="Powershell\PSTSQLGenerator.cs" />
+    <Compile Include="Sqlite\Generators\Component\ColumnDef.cs" />
+    <Compile Include="Sqlite\Generators\Component\ColumnType.cs" />
+    <Compile Include="Sqlite\Generators\Component\TableDef.cs" />
+    <Compile Include="Sqlite\Generators\SqliteFileGenerator.cs" />
     <Compile Include="Sqlite\SqliteGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
