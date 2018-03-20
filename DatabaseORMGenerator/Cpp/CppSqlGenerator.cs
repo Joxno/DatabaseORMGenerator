@@ -148,7 +148,7 @@ namespace DatabaseORMGenerator
 
             t_DataString += "t_Values = t_Values.substr(0, t_Values.length() - 1);" + '\n';
 
-            var t_ColumnStr = String.Join(",", Table.Columns.Select(C => C.Value.Name).ToArray<string>());
+            var t_ColumnStr = String.Join(",", Table.Columns.Select(C => "[" + C.Value.Name + "]").ToArray<string>());
             var t_Text = $"void Create({Table.Name + "DTO"} DTO)" + '\n' +
             "{" + '\n' +
             t_DataString + '\n' +
@@ -161,7 +161,7 @@ namespace DatabaseORMGenerator
         private string _GenerateReadFunction(Table Table)
         {
             //([](Animation_AnimationDTO DTO) { return DTO.Id == 0; }
-            var t_SelectQuery = $"\"SELECT {String.Join(",", Table.Columns.Select(C => C.Value.Name).ToArray<string>())} FROM {Table.Name};\"";
+            var t_SelectQuery = $"\"SELECT {String.Join(",", Table.Columns.Select(C => "[" + C.Value.Name + "]").ToArray<string>())} FROM {Table.Name};\"";
             var t_DTOAssignment = "";
 
             foreach(var t_Col in Table.Columns)
@@ -241,14 +241,14 @@ namespace DatabaseORMGenerator
             var t_NonUniqueColumns = Table.Columns.Where(KV => KV.Value.Property != COLUMN_PROPERTY_TYPE.UNIQUE).Select(KV => KV.Value).ToList();
             foreach(var t_C in t_NonUniqueColumns)
             {
-                t_SetText += t_C.Type == COLUMN_DATA_TYPE.STRING ? $"+ DTO.{t_C.Name} + \",\" " : $"+ std::to_string(DTO.{t_C.Name}) + \",\" ";
+                t_SetText += "+ string(\"[" + t_C.Name + "] = \") " + (t_C.Type == COLUMN_DATA_TYPE.STRING ? $"+ DTO.{t_C.Name} + \",\" " : $"+ std::to_string(DTO.{t_C.Name}) + \",\" ");
             }
             t_SetText = t_SetText.Substring(0, t_SetText.Length - " + \",\" ".Length);
 
             var t_FunctionText = 
             $"void Update({Table.Name + "DTO"} DTO)" + '\n' +
             "{" + '\n' +
-            $"\tm_DB->ExecuteStatement(\"UPDATE {Table.Name} SET \" " + t_SetText + $"+ \" WHERE {t_UniqueColumn.Name} = \" + {t_UniqueColumnStr} + \";\"" + ");" + '\n' +
+            $"\tm_DB->ExecuteStatement(\"UPDATE {Table.Name} SET \" " + t_SetText + $"+ \" WHERE [{t_UniqueColumn.Name}] = \" + {t_UniqueColumnStr} + \";\"" + ");" + '\n' +
             "}" + '\n';
 
             return t_FunctionText;
@@ -261,7 +261,7 @@ namespace DatabaseORMGenerator
             var t_FunctionText =
             $"void Delete({Table.Name + "DTO"} DTO)" + '\n' +
             "{" + '\n' +
-            $"\tm_DB->ExecuteStatement(\"DELETE FROM {Table.Name} WHERE {t_UniqueColumn.Name} = \" + {t_UniqueColumnStr} + \";\");" + '\n' +
+            $"\tm_DB->ExecuteStatement(\"DELETE FROM {Table.Name} WHERE [{t_UniqueColumn.Name}] = \" + {t_UniqueColumnStr} + \";\");" + '\n' +
             "}" + '\n';
 
             return t_FunctionText;

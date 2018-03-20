@@ -63,6 +63,23 @@
   <ItemGroup>
     <Compile Include="Cpp\CppGenerator.cs" />
     <Compile Include="Cpp\CppSqlGenerator.cs" />
+    <Compile Include="Cpp\Generators\Component\AssignmentDef.cs" />
+    <Compile Include="Cpp\Generators\Component\Block.cs" />
+    <Compile Include="Cpp\Generators\Component\BlockCurly.cs" />
+    <Compile Include="Cpp\Generators\Component\ClassDef.cs" />
+    <Compile Include="Cpp\Generators\Component\ClassPrivateDef.cs" />
+    <Compile Include="Cpp\Generators\Component\ClassPublicDef.cs" />
+    <Compile Include="Cpp\Generators\Component\FunctionDef.cs" />
+    <Compile Include="Cpp\Generators\Component\IncludeDef.cs" />
+    <Compile Include="Cpp\Generators\Component\IncludeUserDef.cs" />
+    <Compile Include="Cpp\Generators\Component\IType.cs" />
+    <Compile Include="Cpp\Generators\Component\MultipleStatement.cs" />
+    <Compile Include="Cpp\Generators\Component\Statement.cs" />
+    <Compile Include="Cpp\Generators\Component\TypeDef.cs" />
+    <Compile Include="Cpp\Generators\Component\UDT.cs" />
+    <Compile Include="Cpp\Generators\Component\VariableAssignmentDef.cs" />
+    <Compile Include="Cpp\Generators\Component\VariableDef.cs" />
+    <Compile Include="Cpp\Generators\CppDTOFileGenerator.cs" />
     <Compile Include="CSharp\CSharpGenerator.cs" />
     <Compile Include="CSharp\Generators\Component\Block.cs" />
     <Compile Include="CSharp\Generators\Component\ClassDef.cs" />
