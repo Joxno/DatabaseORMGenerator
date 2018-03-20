@@ -24,7 +24,7 @@ namespace DatabaseORMGenerator.Powershell.Generators.Component
 
         public string Generate()
         {
-            return m_Statement + "\n";
+            return m_Statement;
         }
     }
 }

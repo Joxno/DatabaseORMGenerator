@@ -26,7 +26,7 @@ namespace DatabaseORMGenerator.Powershell.Generators.Component
 
         public string Generate()
         {
-            return $"${m_VariableName} = {{\n" + string.Join("", m_Components.Select(C => C.Generate())) + "}\n";
+            return $"${m_VariableName} = {{\n" + string.Join("\n", m_Components.Select(C => C.Generate())) + "\n}\n";
         }
     }
 }

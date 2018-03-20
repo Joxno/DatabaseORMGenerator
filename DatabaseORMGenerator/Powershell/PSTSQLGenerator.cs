@@ -20,7 +20,7 @@ namespace DatabaseORMGenerator
 
         private string _GenerateRepo(Table Table)
         {
-            var t_File = new PSFileGenerator(new List<IFileComponentGenerator>
+            var t_File = new MultipleStatement(new List<IFileComponentGenerator>
             {
                 new FunctionDef($"New-{Table.Name}DTORepository", 
                 new List<PowershellVariableDef> { new PowershellVariableDef { DataType = "System.Data.SqlClient.SqlConnection", Name = "Con" } },
@@ -36,7 +36,7 @@ namespace DatabaseORMGenerator
                 })
             });
 
-            return t_File.Generate().Content;
+            return t_File.Generate();
         }
 
         private IFileComponentGenerator _GenerateRead(Table Table)
@@ -64,7 +64,7 @@ namespace DatabaseORMGenerator
                         new Statement("return $DTOs;")
                     })
             });
-            
+
             return t_Gen;
         }
 
@@ -87,7 +87,7 @@ namespace DatabaseORMGenerator
 
         private string _GenerateContext(Schema Schema)
         {
-            var t_FileGenerator = new PSFileGenerator(
+            var t_FileGenerator = new MultipleStatement(
             new List<IFileComponentGenerator>
             {
                 new FunctionDef($"New-StorageContext",
@@ -108,13 +108,15 @@ namespace DatabaseORMGenerator
                 })
             });
 
-            return t_FileGenerator.Generate().Content;
+            return t_FileGenerator.Generate();
         }
 
 
         // Interface
         public List<ORMSourceFile> GenerateSource(Schema Schema)
         {
+
+
             var t_PSGen = new PSGenerator();
             var t_Files = t_PSGen.GenerateSource(Schema);
 

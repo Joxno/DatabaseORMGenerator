@@ -51,10 +51,9 @@ namespace DatabaseORMGenerator.Powershell.Generators.Component
             var t_Text = $"function {m_Name}({t_Parameters})\n";
             t_Text += "{\n";
 
-            foreach (var t_C in m_Components)
-                t_Text += t_C.Generate();
+            t_Text += string.Join("\n", m_Components.Select(C => C.Generate()));
 
-            t_Text += "}\n";
+            t_Text += "\n}\n";
 
             return t_Text;
         }

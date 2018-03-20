@@ -24,7 +24,7 @@ namespace DatabaseORMGenerator.Powershell.Generators.Component
 
         public string Generate()
         {
-            return string.Join("", m_Components.Select(C => C.Generate())) + "\n";
+            return string.Join("\n", m_Components.Select(C => C.Generate()));
         }
     }
 }

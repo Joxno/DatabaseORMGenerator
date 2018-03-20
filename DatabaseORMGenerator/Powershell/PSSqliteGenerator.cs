@@ -15,12 +15,17 @@ namespace DatabaseORMGenerator
         // Privates
         private string _GenerateSchema(Schema Schema)
         {
-            return string.Join("", Schema.Tables.Select(T => _GenerateRepo(T)));
+            return 
+                string.Join("", 
+                    Schema.Tables
+                    .Select(T => new PSRepoFileGenerator(T, "System.Data.SQLite.SQLiteConnection", "System.Data.SQLite.SQLiteCommand")
+                    .Generate().Content) 
+                ); //string.Join("", Schema.Tables.Select(T => _GenerateRepo(T)));
         }
 
         private string _GenerateRepo(Table Table)
         {
-            var t_File = new PSFileGenerator(new List<IFileComponentGenerator>
+            var t_File = new MultipleStatement(new List<IFileComponentGenerator>
             {
                 new FunctionDef($"New-{Table.Name}DTORepository",
                 new List<PowershellVariableDef> { new PowershellVariableDef { DataType = "System.Data.SQLite.SQLiteConnection", Name = "Con" } },
@@ -34,7 +39,7 @@ namespace DatabaseORMGenerator
                 })
             });
 
-            return t_File.Generate().Content;
+            return t_File.Generate();
         }
 
         private string _GenerateCreateFunction(Table Table)
@@ -83,7 +88,7 @@ namespace DatabaseORMGenerator
 
         private string _GenerateContext(Schema Schema)
         {
-            var t_FileGenerator = new PSFileGenerator(
+            var t_FileGenerator = new MultipleStatement(
             new List<IFileComponentGenerator>
             {
                 new FunctionDef($"New-StorageContext", 
@@ -104,7 +109,7 @@ namespace DatabaseORMGenerator
                 })
             });
 
-            return t_FileGenerator.Generate().Content;
+            return t_FileGenerator.Generate();
         }
 
         // Interface

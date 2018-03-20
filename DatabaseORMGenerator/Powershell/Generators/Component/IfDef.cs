@@ -4,39 +4,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DatabaseORMGenerator.Internal;
 
-namespace DatabaseORMGenerator.Powershell.Generators
+namespace DatabaseORMGenerator.Powershell.Generators.Component
 {
-    public class PSFileGenerator : IFileGenerator
+    public class IfDef : IFileComponentGenerator
     {
         // Privates
         private List<IFileComponentGenerator> m_Components = new List<IFileComponentGenerator>();
+        private string m_ConditionalBlock = "";
 
         // Interface
-        public PSFileGenerator()
-        {
-
-        }
-
-        public PSFileGenerator(List<IFileComponentGenerator> Components)
+        public IfDef(string ConditionalBlock, List<IFileComponentGenerator> Components)
         {
             m_Components = Components;
+            m_ConditionalBlock = ConditionalBlock;
         }
-
         public void AddComponentGenerator(IFileComponentGenerator Component)
         {
             m_Components.Add(Component);
         }
 
-        public ORMSourceFile Generate()
+        public string Generate()
         {
-            var t_File = new ORMSourceFile();
-
-            foreach (var t_C in m_Components)
-                t_File.Content += t_C.Generate();
-
-            return t_File;
+            return
+                $"if({m_ConditionalBlock})" + "\n"
+                + "{\n" 
+                + string.Join("\n", m_Components.Select(C => C.Generate())) 
+                + "\n}\n";
         }
     }
 }

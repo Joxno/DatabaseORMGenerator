@@ -14,7 +14,7 @@ namespace DatabaseORMGeneratorCLI
     {
         static void Main(string[] args)
         {
-            args = new string[] { "--SchemaFrom", "TOW.json", "--GenerateDTO", "C++SQL", "--SaveTo", "Generated" };
+            args = new string[] { "--SchemaFrom", "TOW.json", "--GenerateDTO", "PSSqlite", "--SaveTo", "Generated" };
             // -SchemaFrom
             // -GenerateDTO
             // -GenerateContext

@@ -7,16 +7,32 @@ using System.Threading.Tasks;
 
 namespace DatabaseORMGenerator.Powershell.Generators.Component
 {
-    public class ScriptBlock : IFileComponentGenerator
+    public class Block : IFileComponentGenerator
     {
         // Privates
         private List<IFileComponentGenerator> m_Components = new List<IFileComponentGenerator>();
+        private int m_TabCount = 0;
+
+        private string _GenerateTabs()
+        {
+            var t_Tabs = "";
+            for (int i = 0; i < m_TabCount; i++)
+                t_Tabs += "\t";
+            return t_Tabs;
+        }
 
         // Interface
-        public ScriptBlock(List<IFileComponentGenerator> Components)
+        public Block()
+        {
+
+        }
+
+        public Block(int Indentations, List<IFileComponentGenerator> Components)
         {
             m_Components = Components;
+            m_TabCount = Indentations;
         }
+
         public void AddComponentGenerator(IFileComponentGenerator Component)
         {
             m_Components.Add(Component);
@@ -24,7 +40,7 @@ namespace DatabaseORMGenerator.Powershell.Generators.Component
 
         public string Generate()
         {
-            return "{\n" + string.Join("\n", m_Components.Select(C => C.Generate())) + "\n}\n";
+            return string.Join("\n", m_Components.Select(C => _GenerateTabs() + C.Generate()));
         }
     }
 }
