@@ -9,26 +9,28 @@ namespace DatabaseORMGenerator.Cpp.Generators.Component
     public class UDT : IType
     {
         // Private
+        private string m_Name = "";
+        private string m_Value = "";
 
         // Interface
 
         public UDT(string Name, string Value = "")
         {
-            TypeName = Name;
-            DefaultValue = Value;
+            m_Name = Name;
+            m_Value = Value;
         }
 
         public string GetDefaultValue()
         {
-            return DefaultValue;
+            return m_Value == "" ? TypeName : m_Value;
         }
 
         public string GetTypeName()
         {
-            return TypeName;
+            return m_Name;
         }
 
-        public string TypeName { get; set; } = "";
-        public string DefaultValue { get; set; } = "";
+        public string TypeName { get { return GetTypeName(); } set { m_Name = value; } }
+        public string DefaultValue { get { return GetDefaultValue(); } set { m_Value = value; } }
     }
 }

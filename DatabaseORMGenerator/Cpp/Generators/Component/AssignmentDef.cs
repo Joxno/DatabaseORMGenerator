@@ -26,7 +26,7 @@ namespace DatabaseORMGenerator.Cpp.Generators.Component
 
         public string Generate()
         {
-            return m_LValue.Name + " = " + m_RValue + ";" + "\n";
+            return m_LValue.Name + " = " + m_RValue + ";";
         }
     }
 }

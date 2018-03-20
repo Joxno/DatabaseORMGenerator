@@ -26,8 +26,7 @@ namespace DatabaseORMGenerator.Cpp.Generators
                 new Statement("#pragma once"),
                 new IncludeDef("string"),
                 new IncludeDef("vector"),
-                new Block(0, t_References.Select(R => new IncludeUserDef(R.Table.Name + "DTO")).ToList<IFileComponentGenerator>()),
-                new Block(0, t_ReferencedBy.Select(R => new IncludeUserDef(R.Table.Name + "DTO")).ToList<IFileComponentGenerator>()),
+                new Block(0, t_References.Concat(t_ReferencedBy).Select(R => new IncludeUserDef(R.Table.Name + "DTO")).ToList<IFileComponentGenerator>()),
                 new ClassDef(Table.Name + "DTO", new List<IFileComponentGenerator>
                 {
                     new ClassPublicDef
@@ -45,23 +44,15 @@ namespace DatabaseORMGenerator.Cpp.Generators
                                 .ToList<IFileComponentGenerator>()
                             ),
                             new Block(1,
-                                t_References.Where(R => R.Relationship == COLUMN_REFERENCE_RELATIONSHIP.ONE)
-                                .Select(R => new VariableAssignmentDef(new VariableDef(R.Table.Name, new UDT(R.Table.Name + "DTO")), R.Table.Name + "DTO" + "{}"))
+                                t_References.Concat(t_ReferencedBy)
+                                .Where(R => R.Relationship == COLUMN_REFERENCE_RELATIONSHIP.ONE)
+                                .Select(R => new VariableAssignmentDef(new VariableDef(R.Table.Name, new UDT(R.Table.Name + "DTO"))))
                                 .ToList<IFileComponentGenerator>()
                             ),
                             new Block(1,
-                                t_References.Where(R => R.Relationship == COLUMN_REFERENCE_RELATIONSHIP.MANY)
-                                .Select(R => new VariableAssignmentDef(new VariableDef(R.Table.Name, new UDT($"std::vector<{R.Table.Name + "DTO"}>")), $"std::vector<{R.Table.Name + "DTO"}>{{}}"))
-                                .ToList<IFileComponentGenerator>()
-                            ),
-                            new Block(1,
-                                t_ReferencedBy.Where(R => R.Relationship == COLUMN_REFERENCE_RELATIONSHIP.ONE)
-                                .Select(R => new VariableAssignmentDef(new VariableDef(R.Table.Name, new UDT(R.Table.Name + "DTO")), R.Table.Name + "DTO" + "{}"))
-                                .ToList<IFileComponentGenerator>()
-                            ),
-                            new Block(1,
-                                t_ReferencedBy.Where(R => R.Relationship == COLUMN_REFERENCE_RELATIONSHIP.MANY)
-                                .Select(R => new VariableAssignmentDef(new VariableDef(R.Table.Name, new UDT($"std::vector<{R.Table.Name + "DTO"}>")), $"std::vector<{R.Table.Name + "DTO"}>{{}}"))
+                                t_References.Concat(t_ReferencedBy)
+                                .Where(R => R.Relationship == COLUMN_REFERENCE_RELATIONSHIP.MANY)
+                                .Select(R => new VariableAssignmentDef(new VariableDef(R.Table.Name, new UDT($"std::vector<{R.Table.Name + "DTO"}>"))))
                                 .ToList<IFileComponentGenerator>()
                             )
                         }

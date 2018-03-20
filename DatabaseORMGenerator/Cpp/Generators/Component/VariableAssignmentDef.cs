@@ -14,7 +14,7 @@ namespace DatabaseORMGenerator.Cpp.Generators.Component
         private string m_RValue = "";
 
         // Interface
-        public VariableAssignmentDef(VariableDef LValue, string RValue)
+        public VariableAssignmentDef(VariableDef LValue, string RValue = "")
         {
             m_LValue = LValue;
             m_RValue = RValue;
@@ -26,7 +26,7 @@ namespace DatabaseORMGenerator.Cpp.Generators.Component
 
         public string Generate()
         {
-            return m_LValue.Generate() + " = " + m_RValue + ";";
+            return m_LValue.Generate() + " = " + (m_RValue == "" ? (m_LValue.Type.DefaultValue + "{}") : m_RValue) + ";";
         }
     }
 }
