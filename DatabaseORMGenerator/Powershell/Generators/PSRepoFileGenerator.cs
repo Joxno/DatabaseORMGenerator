@@ -30,10 +30,14 @@ namespace DatabaseORMGenerator.Powershell.Generators
                     {
                         _GenerateCreate(Table),
                         _GenerateRead(Table),
+                        _GetUniqueColumn(Table) == null ? new Statement("### NO UNIQUE COLUMN FOUND FOR UPDATE FUNCTION ###") : _GenerateUpdate(Table),
+                        _GetUniqueColumn(Table) == null ? new Statement("### NO UNIQUE COLUMN FOUND FOR DELETE FUNCTION ###") : _GenerateDelete(Table),
                         new Statement("$_REPO = New-Object -TypeName psobject"),
                         new Statement("$_REPO | Add-Member -MemberType NoteProperty -Name Connection -Value $Con"),
                         new Statement("$_REPO | Add-Member -MemberType ScriptMethod -Name Create -Value $_CREATE"),
                         new Statement("$_REPO | Add-Member -MemberType ScriptMethod -Name Read -Value $_READ"),
+                        _GetUniqueColumn(Table) == null ? new Statement("") : new Statement("$_REPO | Add-Member -MemberType ScriptMethod -Name Update -Value $_UPDATE"),
+                        _GetUniqueColumn(Table) == null ? new Statement("") : new Statement("$_REPO | Add-Member -MemberType ScriptMethod -Name Delete -Value $_DELETE"),
                         new Statement("return $_REPO;")
                     })
                 })
@@ -107,6 +111,49 @@ namespace DatabaseORMGenerator.Powershell.Generators
                             new Statement("return $DTOs;")
                         })
                     })
+            });
+
+            return t_Gen;
+        }
+
+        private IFileComponentGenerator _GenerateUpdate(Table Table)
+        {
+            var t_Unique = _GetUniqueColumn(Table);
+            var t_Columns = Table.Columns.Select(KV => KV.Value).Where(C => C != t_Unique);
+            var t_ColumnText = string.Join(",", t_Columns.Select(C => $"[{C.Name}] = " + (C.Type == COLUMN_DATA_TYPE.STRING ? $"'$($DTO.{C.Name})'" : "$($DTO.{C.Name})")));
+            var t_InsertQuery = $"UPDATE [{Table.Name}] SET {t_ColumnText} WHERE [{t_Unique.Name}] = $($DTO.{t_Unique.Name});";
+
+            var t_Gen = new MultipleStatement(new List<IFileComponentGenerator>
+            {
+                new VariableScriptBlock("_UPDATE", new List<IFileComponentGenerator>
+                {
+                    new Block(2, new List<IFileComponentGenerator>
+                    {
+                        new Statement("param($DTO)"),
+                        new Statement($"$Cmd = [{m_SqlCommandType}]::new(\"{t_InsertQuery}\",$this.Connection);"),
+                        new Statement("$Cmd.ExecuteNonQuery();")
+                    })
+                })
+            });
+
+            return t_Gen;
+        }
+
+        private IFileComponentGenerator _GenerateDelete(Table Table)
+        {
+            var t_Unique = _GetUniqueColumn(Table);
+            var t_DeleteQuery = $"DELETE FROM [{Table.Name}] WHERE [{t_Unique.Name}] = " + (t_Unique.Type == COLUMN_DATA_TYPE.STRING ? $"'$($DTO.{t_Unique.Name})'" : $"$($DTO.{t_Unique.Name})") + ";";
+            var t_Gen = new MultipleStatement(new List<IFileComponentGenerator>
+            {
+                new VariableScriptBlock("_DELETE", new List<IFileComponentGenerator>
+                {
+                    new Block(2, new List<IFileComponentGenerator>
+                    {
+                        new Statement("param($DTO)"),
+                        new Statement($"$Cmd = [{m_SqlCommandType}]::new(\"{t_DeleteQuery}\",$this.Connection);"),
+                        new Statement("$Cmd.ExecuteNonQuery();")
+                    })
+                })
             });
 
             return t_Gen;
